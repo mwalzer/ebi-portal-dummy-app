@@ -1,0 +1,23 @@
+#MacOS X
+*.DS_Store
+
+#Terraform
+*.tfstate*
+*.terraform
+*.tfvars
+credentials.json
+TSISOMEID*
+
+#Ansible
+*/vendor/*
+*/tmp/*
+*.retry
+
+#Test
+env.json
+
+#deployments
+*/deployments/*
+
+*.log
+volumes_mapping.json

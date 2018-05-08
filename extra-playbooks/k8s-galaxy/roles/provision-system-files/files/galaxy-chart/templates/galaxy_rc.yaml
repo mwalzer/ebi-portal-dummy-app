@@ -1,0 +1,138 @@
+apiVersion: v1
+kind: ReplicationController
+metadata:
+    name: {{.Values.galaxy_metadata_name}}
+spec:
+  replicas: 1
+  template:
+    metadata:
+      labels:
+         app: {{.Values.galaxy_label_app}}
+{{ if and .Values.galaxy_backend_postgres .Values.legacy_pre_k8s_16}}
+      annotations:
+        pod.beta.kubernetes.io/init-containers: |-
+          [
+            {
+              "name": "postgres-listener",
+              "image": "alpine",
+              "imagePullPolicy": "IfNotPresent",
+              "command": [
+                "sh", "-c",
+                "for i in $(seq 1 200); do nc -z -w3 postgresql-for-galaxy 5432 && exit 0 || sleep 3; done; exit 1"
+              ]
+            }
+          ]
+{{ end }}
+    spec:
+      {{ if and .Values.galaxy_backend_postgres (not .Values.legacy.pre_k8s_16) }}
+      initContainers:
+        - name: postgres-listener-v2
+          image: alpine
+          imagePullPolicy: IfNotPresent
+          command: [ "sh", "-c", "for i in $(seq 1 200); do nc -z -w3 postgresql-for-galaxy 5432 && exit 0 || sleep 3; done; exit 1"]
+          {{ if .Values.cluster_dev }}
+        - name: galaxy-settings-provisioner
+          # TODO this means loading files only if .Values.galaxy_backend_postgres
+          #docker run -v /tmp/:/workdir/:rw jgsqware/svn-client export https://github.com/mwalzer/k8s-galaxy-ansible/trunk/dev /workdir/customchart
+          image: mwalzer/alpine-svn
+          imagePullPolicy: IfNotPresent
+          command: ["/bin/sh"]
+          args: ["-c", "wget https://gitlabci.ebi.ac.uk/walzer/portal-dummy/-/archive/master/portal-dummy-master.zip && unzip portal-dummy-master.zip && mv portal-dummy-master/extra-playbooks/k8s-galaxy/roles/provision-system-files/files/galaxy-settings /workdir/customsettings && sed -i 's/<your key>/{{.Values.objectstore_token}}/g' /workdir/customsettings/config/galaxy.ini" ]
+          #branch example url would be .../kubeGXspray/branches/S3/extra-playbooks/k8s-gal...
+          volumeMounts:
+            - mountPath: "/workdir"
+              name: galaxy-pvc
+          {{ end }}
+      {{ end }}
+      containers:
+      - name: galaxy-k8s
+        image: mwalzer/python-dummy
+        imagePullPolicy: IfNotPresent
+        env:
+            - name: "GALAXY_CONFIG_DATABASE_AUTO_MIGRATE"
+              value: "{{.Values.galaxy.config.auto_migrate}}"
+            - name: "GALAXY_TOOLS_PULL_POLICY"
+              value: {{.Values.galaxy_pull_policy}}
+{{ if .Values.galaxy_backend_postgres }}
+            - name: "GALAXY_SEC_DB_ENGINE"
+              value: "postgresql"
+            - name: "GALAXY_SEC_DB_USER"
+              valueFrom:
+                configMapKeyRef:
+                      name: db-connection
+                      key: db.user
+            - name: "GALAXY_SEC_DB_PASS"
+              valueFrom:
+                secretKeyRef:
+                      name: galaxy-postgres-secret
+                      key: password
+            - name: "GALAXY_SEC_DB_HOST"
+              value: "postgresql-for-galaxy"
+            - name: "GALAXY_SEC_DB_NAME"
+              valueFrom:
+                configMapKeyRef:
+                      name: db-connection
+                      key: db.name
+{{ end }}
+{{ if .Values.galaxy_tools_dest }}
+            - name: "TOOLS_DEST_PVC"
+              value: "{{.Values.galaxy_tools_dest}}"
+{{ end }}
+{{ if .Values.k8s_supp_groups }}
+            - name: "SUPP_GROUPS"
+              value: "{{.Values.k8s_supp_groups}}"
+{{ end }}
+{{ if .Values.k8s_fs_group }}
+            - name: "FS_GROUP"
+              value: "{{.Values.k8s_fs_group}}"
+{{ end }}
+        command: ["/bin/bash","-c","python dummy.py -a {{.Values.galaxy_metadata_name}}"]
+
+        lifecycle:
+          preStop:
+            exec:
+               command:
+                   - "mv"
+                   - "/tmp/test.txt"
+                   - "/opt/galaxy_data/test.txt"
+        ports:
+          - containerPort: {{.Values.galaxy_internal_port}}
+        volumeMounts:
+          - mountPath: "/opt/galaxy_data"
+            name: galaxy-pvc
+{{ if .Values.development_folder }}
+          - mountPath: "/galaxy/config/galaxy.ini.injected"
+            name: galaxy-ini
+          - mountPath: "/galaxy/config/job_conf.xml"
+            name: galaxy-job-conf
+          - mountPath: "/galaxy/config/tool_conf.xml"
+            name: galaxy-tool-conf
+{{ end }}
+{{ if .Values.tool2container_mapping_file }}
+          - mountPath: /galaxy/config/{{ .Values.tool2container_mapping_file }}
+            name: phenomenal-tools2container-mapping
+{{ end }}
+{{ if or .Values.k8s_supp_groups .Values.k8s_fs_group }}
+      securityContext:
+{{ if .Values.k8s_supp_groups }}
+        supplementalGroups: [{{.Values.k8s_supp_groups}}]
+{{ end }}
+{{ if .Values.k8s_fs_group }}
+        fsGroup: {{.Values.k8s_fs_group}}
+{{ end }}
+{{ end }}
+      volumes:
+        - name: galaxy-pvc
+          persistentVolumeClaim:
+              claimName: {{.Values.galaxy_pvc}}
+{{ if .Values.development_folder }}
+        - name: galaxy-ini
+          hostPath:
+            path: {{ .Values.development_folder }}/config/galaxy.ini
+        - name: galaxy-job-conf
+          hostPath:
+            path: {{ .Values.development_folder }}/config/job_conf.xml
+        - name: galaxy-tool-conf
+          hostPath:
+            path: {{ .Values.development_folder }}/config/tool_conf.xml
+{{ end }}

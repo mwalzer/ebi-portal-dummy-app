@@ -1,0 +1,11 @@
+# Instance
+machine_type       = "t2.micro"
+disk_image_name    = "ami-7abd0209"
+profile_public_key = "ssh-rsa AAA...XYZ== cloud.portal.tsi@ebi.ac.uk"
+
+# AWS provider credentials
+access_key         = "AKIAIOSFODNN7EXAMPLE"
+secret_key         = "`wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY"
+
+# Subnet
+subnet_id          = "subnet-f4a1c893"

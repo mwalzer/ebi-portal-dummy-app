@@ -1,0 +1,19 @@
+{
+  "applicationName": "Python-dummy",
+  "contactEmail": "walzer@ebi.ac.uk",
+  "about": "A kubernetes deployment with a dummy python app",
+  "version": "0.1",
+  "cloudProviders": [
+    {
+     "cloudProvider": "OSTACK",
+     "path": "ostack",
+     "inputs":["machine_type"]
+    }
+  ],
+  "inputs": ["disk_image"], #deploy.sh inputs $TF_VAR_disk_image ...
+  "deploymentParameters": ["network_name",
+                           "floatingip_pool",
+                           "subnet_id"],
+
+  "outputs": ["external_ip"]
+}
