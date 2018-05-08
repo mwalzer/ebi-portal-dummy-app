@@ -17,7 +17,7 @@ TSISOMEID*
 env.json
 
 #deployments
-*/deployments/*
+*deployments/*
 
 *.log
 volumes_mapping.json

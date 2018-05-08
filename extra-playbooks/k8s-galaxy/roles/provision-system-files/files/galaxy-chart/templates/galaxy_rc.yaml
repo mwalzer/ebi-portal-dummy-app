@@ -37,7 +37,7 @@ spec:
           image: mwalzer/alpine-svn
           imagePullPolicy: IfNotPresent
           command: ["/bin/sh"]
-          args: ["-c", "wget https://gitlabci.ebi.ac.uk/walzer/portal-dummy/-/archive/master/portal-dummy-master.zip && unzip portal-dummy-master.zip && mv portal-dummy-master/extra-playbooks/k8s-galaxy/roles/provision-system-files/files/galaxy-settings /workdir/customsettings && sed -i 's/<your key>/{{.Values.objectstore_token}}/g' /workdir/customsettings/config/galaxy.ini" ]
+          args: ["-c", "svn export --force https://github.com/mwalzer/portal-dummy/trunk/extra-playbooks/k8s-galaxy/roles/provision-system-files/files/galaxy-settings /workdir/customsettings && sed -i 's/<your key>/{{.Values.objectstore_token}}/g' /workdir/customsettings/config/galaxy.ini" ]
           #branch example url would be .../kubeGXspray/branches/S3/extra-playbooks/k8s-gal...
           volumeMounts:
             - mountPath: "/workdir"
@@ -47,7 +47,8 @@ spec:
       containers:
       - name: galaxy-k8s
         image: mwalzer/python-dummy
-        imagePullPolicy: IfNotPresent
+        imagePullPolicy: Always
+        args: ["-a", "{{.Values.galaxy_metadata_name}}"]
         env:
             - name: "GALAXY_CONFIG_DATABASE_AUTO_MIGRATE"
               value: "{{.Values.galaxy.config.auto_migrate}}"
@@ -86,8 +87,6 @@ spec:
             - name: "FS_GROUP"
               value: "{{.Values.k8s_fs_group}}"
 {{ end }}
-        command: ["/bin/bash","-c","python dummy.py -a {{.Values.galaxy_metadata_name}}"]
-
         lifecycle:
           preStop:
             exec:
@@ -108,10 +107,7 @@ spec:
           - mountPath: "/galaxy/config/tool_conf.xml"
             name: galaxy-tool-conf
 {{ end }}
-{{ if .Values.tool2container_mapping_file }}
-          - mountPath: /galaxy/config/{{ .Values.tool2container_mapping_file }}
-            name: phenomenal-tools2container-mapping
-{{ end }}
+      restartPolicy: OnFailure
 {{ if or .Values.k8s_supp_groups .Values.k8s_fs_group }}
       securityContext:
 {{ if .Values.k8s_supp_groups }}

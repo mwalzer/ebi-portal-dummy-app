@@ -32,6 +32,7 @@ export TF_VAR_flavor_k8s_node="11"
 export TF_VAR_flavor_k8s_master="11"
 export TF_VAR_network_name="Elixir-Proteomics_private"
 export TF_VAR_floatingip_pool="ext-net"
+# missing for portal subnet_id
 
 # GlusterFS variables
 #export TF_VAR_flavor_gfs_node="e9ca7478-7957-4237-b3d0-d4767e1de65f" #ext5
@@ -52,4 +53,5 @@ if [ ! -z ${K8S_MASTER_GX_PORT+x} ]; then
 fi
 # this will stack the same rule in the .tf file which is benign but ugly
 
+#1st customisation external_ip (in manifest and deploy.sh)
 ostack/deploy.sh

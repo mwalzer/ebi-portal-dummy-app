@@ -7,13 +7,11 @@
     {
      "cloudProvider": "OSTACK",
      "path": "ostack",
-     "inputs":["machine_type"]
+     "inputs":[]
     }
   ],
   "inputs": ["disk_image"],
-  "deploymentParameters": ["network_name",
-                           "floatingip_pool",
-                           "subnet_id"],
+  "deploymentParameters": [],
 
   "outputs": ["external_ip"]
 }
