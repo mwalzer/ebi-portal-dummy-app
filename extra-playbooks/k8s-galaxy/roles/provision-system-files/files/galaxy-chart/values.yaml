@@ -99,3 +99,5 @@ postgres_for_galaxy:
         subpath: ""
 
 smtp_ssl: "False"
+
+restartPolicy: OnFailure

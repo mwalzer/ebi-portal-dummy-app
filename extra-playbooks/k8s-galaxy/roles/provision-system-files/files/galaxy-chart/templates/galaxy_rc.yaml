@@ -37,8 +37,8 @@ spec:
           image: mwalzer/alpine-svn
           imagePullPolicy: IfNotPresent
           command: ["/bin/sh"]
-          args: ["-c", "svn export --force https://github.com/mwalzer/portal-dummy/trunk/extra-playbooks/k8s-galaxy/roles/provision-system-files/files/galaxy-settings /workdir/customsettings && sed -i 's/<your key>/{{.Values.objectstore_token}}/g' /workdir/customsettings/config/galaxy.ini" ]
-          #branch example url would be .../kubeGXspray/branches/S3/extra-playbooks/k8s-gal...
+          args: ["-c", "svn export --force https://github.com/mwalzer/portal-dummy/trunk/extra-playbooks/k8s-galaxy/roles/provision-system-files/files/galaxy-settings /workdir/customsettings  && sed -i 's/<your key>/{{.Values.objectstore_token}}/g' /workdir/customsettings/config/galaxy.ini" ]
+          #branch example url would be .../portal-dummy/branches/S3/extra-playbooks/k8s-gal...
           volumeMounts:
             - mountPath: "/workdir"
               name: galaxy-pvc
@@ -86,13 +86,51 @@ spec:
             - name: "FS_GROUP"
               value: "{{.Values.k8s_fs_group}}"
 {{ end }}
+{{ if and .Values.galaxy_admin_email (and .Values.galaxy_admin_password .Values.galaxy_api_key) }}
+            - name: "GALAXY_ADMIN_EMAIL"
+              valueFrom:
+                configMapKeyRef:
+                      name: galaxy-admin-user
+                      key: email
+            - name: "GALAXY_ADMIN_USER"
+              valueFrom:
+                configMapKeyRef:
+                      name: galaxy-admin-user
+                      key: user
+            - name: "GALAXY_ADMIN_PASSWORD"
+              valueFrom:
+                secretKeyRef:
+                      name: galaxy-admin-secret
+                      key: password
+            - name: "GALAXY_API_KEY"
+              valueFrom:
+                secretKeyRef:
+                      name: galaxy-admin-secret
+                      key: api-key
+{{ end }}
+{{ if and .Values.smtp_server (and .Values.smtp_username .Values.smtp_password) }}
+            - name: "GALAXY_SMTP_SERVER"
+              value: "{{.Values.smtp_server}}"
+            - name: "GALAXY_SMTP_USERNAME"
+              value: "{{.Values.smtp_username}}"
+            - name: "GALAXY_SMTP_PASSWORD"
+              value: "{{.Values.smtp_password}}"
+            - name: "GALAXY_EMAIL_FROM"
+              value: "{{.Values.email_from}}"
+            - name: "GALAXY_URL"
+              value: "{{.Values.instance_resource_url}}"
+            - name: "GALAXY_SMTP_SSL"
+              value: "{{.Values.smtp_ssl}}"
+{{ end }}
+        command: ["/bin/bash","-c","{{ if not .Values.galaxy_backend_postgres }}mkdir -p /opt/galaxy_data/database-sqlite && {{ end }}{{ if .Values.cluster_dev }} cp /opt/galaxy_data/customsettings/config/galaxy.ini /galaxy/config/galaxy.ini && cp /opt/galaxy_data/customsettings/config/job_conf.xml /galaxy/config/job_conf.xml && cp /opt/galaxy_data/customsettings/config/tool_conf.xml /galaxy/config/tool_conf.xml && cp -r /opt/galaxy_data/customsettings/tools/openms2_1 /galaxy/tools/openms2_1 && cp -r /opt/galaxy_data/customsettings/tools/phenomenal /galaxy/tools/phenomenal && {{ end }}./ansible/run_galaxy_config.sh > config_db.log && ./run.sh --daemon && tail -f paster.log"]
+
         lifecycle:
           preStop:
             exec:
                command:
                    - "./run.sh"
                    - "--stop"
-          ports:
+        ports:
           - containerPort: {{.Values.galaxy_internal_port}}
         volumeMounts:
           - mountPath: "/opt/galaxy_data"
@@ -104,6 +142,12 @@ spec:
             name: galaxy-job-conf
           - mountPath: "/galaxy/config/tool_conf.xml"
             name: galaxy-tool-conf
+          - mountPath: "/galaxy/tools/phenomenal"
+            name: phenomenal-tools
+{{ end }}
+{{ if .Values.tool2container_mapping_file }}
+          - mountPath: /galaxy/config/{{ .Values.tool2container_mapping_file }}
+            name: phenomenal-tools2container-mapping
 {{ end }}
 {{ if or .Values.k8s_supp_groups .Values.k8s_fs_group }}
       securityContext:
@@ -128,4 +172,12 @@ spec:
         - name: galaxy-tool-conf
           hostPath:
             path: {{ .Values.development_folder }}/config/tool_conf.xml
+        - name: phenomenal-tools
+          hostPath:
+            path: {{ .Values.development_folder }}/tools/phenomenal
+{{ end }}
+{{ if .Values.tool2container_mapping_file }}
+        - name: phenomenal-tools2container-mapping
+          hostPath:
+            path: "{{ .Values.development_folder }}/config/{{ .Values.tool2container_mapping_file }}"
 {{ end }}
