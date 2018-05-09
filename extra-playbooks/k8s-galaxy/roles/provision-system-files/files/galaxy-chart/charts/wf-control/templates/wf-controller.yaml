@@ -1,0 +1,29 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: wf-controller-job
+  labels:
+    app: wf-controller-job
+  annotations:
+    # This is what defines this resource as a hook. Without this line, the
+    # job is considered part of the release.
+    "helm.sh/hook": post-install
+spec:
+  template:
+    metadata:
+      name: wf-controller-job
+      labels:
+        app: wf-controller-job
+    spec:
+      # This shows how to use a simple value. This will look for a passed-in value
+      # called restartPolicy. If it is not found, it will use the default value.
+      # {{ default "Never" .restartPolicy }} is a slightly optimized version of the
+      # more conventional syntax: {{ .restartPolicy | default "Never" }}
+      restartPolicy: {{ .Values.restartPolicy }}
+      containers:
+        - name: post-install-job
+          image: mwalzer/python-dummy
+          command: ["python"]
+          args: ["dummy.py", "-a", "whatever"]
+          ## All we're going to do is sleep for a while, then exit.
+          #command: ["/bin/sleep", "{{ .Values.sleepyTime }}"]

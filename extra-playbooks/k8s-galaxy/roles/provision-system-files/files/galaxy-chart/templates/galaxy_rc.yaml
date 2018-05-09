@@ -46,9 +46,8 @@ spec:
       {{ end }}
       containers:
       - name: galaxy-k8s
-        image: mwalzer/python-dummy
-        imagePullPolicy: Always
-        args: ["-a", "{{.Values.galaxy_metadata_name}}"]
+        image: {{.Values.galaxy_image_registry}}{{.Values.galaxy_image}}{{.Values.galaxy_image_tag}}
+        imagePullPolicy: {{.Values.galaxy_pull_policy}}
         env:
             - name: "GALAXY_CONFIG_DATABASE_AUTO_MIGRATE"
               value: "{{.Values.galaxy.config.auto_migrate}}"
@@ -91,10 +90,9 @@ spec:
           preStop:
             exec:
                command:
-                   - "mv"
-                   - "/tmp/test.txt"
-                   - "/opt/galaxy_data/test.txt"
-        ports:
+                   - "./run.sh"
+                   - "--stop"
+          ports:
           - containerPort: {{.Values.galaxy_internal_port}}
         volumeMounts:
           - mountPath: "/opt/galaxy_data"
@@ -107,7 +105,6 @@ spec:
           - mountPath: "/galaxy/config/tool_conf.xml"
             name: galaxy-tool-conf
 {{ end }}
-      restartPolicy: OnFailure
 {{ if or .Values.k8s_supp_groups .Values.k8s_fs_group }}
       securityContext:
 {{ if .Values.k8s_supp_groups }}

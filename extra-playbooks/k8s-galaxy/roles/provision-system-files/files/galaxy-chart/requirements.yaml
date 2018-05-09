@@ -1,5 +1,9 @@
-dependencies:
-      - name: postgres_for_galaxy
-        repository: https://pcm32.github.io/galaxy-helm-charts
-        version: 0.1.2
-        condition: galaxy_backend_postgres
+#dependencies:
+      # - name: postgres_for_galaxy
+      #   repository: https://pcm32.github.io/galaxy-helm-charts
+      #   version: 0.1.2
+      #   condition: galaxy_backend_postgres
+      # - name: wf_controller_galaxy
+      #   repository: https://mwalzer.github.io/helm-charts
+      #   version: 0.1.0
+      #   condition: galaxy_backend_postgres
