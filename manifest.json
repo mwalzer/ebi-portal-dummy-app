@@ -10,8 +10,8 @@
      "inputs":[]
     }
   ],
-  "inputs": ["disk_image"],
+  "inputs": ["helm_test_param_in"],
   "deploymentParameters": [],
 
-  "outputs": ["helm_test_param"]
+  "outputs": ["helm_test_param_out", "external_ip"]
 }

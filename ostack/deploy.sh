@@ -73,6 +73,10 @@ ansible-playbook -b --become-user=root -i $PORTAL_DEPLOYMENTS_ROOT'/'$PORTAL_DEP
 ansible-playbook -b --become-user=root -i $PORTAL_DEPLOYMENTS_ROOT'/'$PORTAL_DEPLOYMENT_REFERENCE'/hosts' \
 	../extra-playbooks/get-results/get-results.yml \
 	--key-file "$PRIVATE_KEY" \
-  --extra-vars "helm_test_param=789" 
+  --extra-vars "helm_test_param=789"
+  #something like --extra-vars "helm_test_param=helm_test_param_in"
 
-helm_test_param=`cat helm_test_param.txt`
+helm_test_param_out=`cat helm_test_param.txt`
+
+# Extract the external IP of the instance
+external_ip=$(terraform output -state=${DPL}'terraform.tfstate' external_ip)
