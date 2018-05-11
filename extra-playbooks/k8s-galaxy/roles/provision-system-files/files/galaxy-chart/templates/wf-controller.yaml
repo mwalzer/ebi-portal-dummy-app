@@ -8,6 +8,7 @@ metadata:
     # This is what defines this resource as a hook. Without this line, the
     # job is considered part of the release.
     "helm.sh/hook": post-install
+    #https://github.com/kubernetes/helm/blob/master/docs/charts_hooks.md
 spec:
   template:
     metadata:
@@ -27,3 +28,13 @@ spec:
           args: ["dummy.py", "-a", "whatever"]
           ## All we're going to do is sleep for a while, then exit.
           #command: ["/bin/sleep", "{{ .Values.sleepyTime }}"]
+          #https://v1-8.docs.kubernetes.io/docs/tasks/inject-data-application/define-command-argument-container/
+          #https://github.com/kubernetes/kubernetes/issues/28695
+          volumeMounts:
+            - mountPath: "/workdir"
+              name: galaxy-pvc
+#https://kubernetes.io/docs/concepts/workloads/controllers/jobs-run-to-completion/
+      volumes:
+        - name: galaxy-pvc
+          persistentVolumeClaim:
+              claimName: {{.Values.galaxy_pvc}}

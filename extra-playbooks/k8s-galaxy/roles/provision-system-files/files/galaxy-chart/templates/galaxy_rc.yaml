@@ -25,6 +25,7 @@ spec:
 {{ end }}
     spec:
       {{ if and .Values.galaxy_backend_postgres (not .Values.legacy.pre_k8s_16) }}
+      #https://kubernetes.io/docs/tasks/debug-application-cluster/debug-init-containers/
       initContainers:
         - name: postgres-listener-v2
           image: alpine
