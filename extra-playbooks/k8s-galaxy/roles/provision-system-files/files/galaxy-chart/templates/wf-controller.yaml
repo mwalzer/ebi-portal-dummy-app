@@ -24,9 +24,9 @@ spec:
       containers:
         - name: post-install-job
           image: mwalzer/python-dummy
-          command: ["python"]
-          args: ["dummy.py", "-a", "whatever"]
-          ## All we're going to do is sleep for a while, then exit.
+          command: ["/bin/sh"]
+          args: ["-c", "python dummy.py -a whatever && mv /tmp/* /workdir/" ]
+## All we're going to do is sleep for a while, then exit.
           #command: ["/bin/sleep", "{{ .Values.sleepyTime }}"]
           #https://v1-8.docs.kubernetes.io/docs/tasks/inject-data-application/define-command-argument-container/
           #https://github.com/kubernetes/kubernetes/issues/28695
