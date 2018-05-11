@@ -73,5 +73,6 @@ ansible-playbook -b --become-user=root -i $PORTAL_DEPLOYMENTS_ROOT'/'$PORTAL_DEP
 ansible-playbook -b --become-user=root -i $PORTAL_DEPLOYMENTS_ROOT'/'$PORTAL_DEPLOYMENT_REFERENCE'/hosts' \
 	../extra-playbooks/get-results/get-results.yml \
 	--key-file "$PRIVATE_KEY" \
+  --extra-vars "helm_test_param=789" 
 
 helm_test_param=`cat helm_test_param.txt`
