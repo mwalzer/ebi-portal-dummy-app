@@ -63,12 +63,15 @@ ansible-playbook -b --become-user=root -i $PORTAL_DEPLOYMENTS_ROOT'/'$PORTAL_DEP
 	../extra-playbooks/rbac/rbac.yml \
 	--key-file "$PRIVATE_KEY"
 
-# Start Galaxy
+# Start Galaxy, provision galaxy dataset, start workflow
 ansible-playbook -b --become-user=root -i $PORTAL_DEPLOYMENTS_ROOT'/'$PORTAL_DEPLOYMENT_REFERENCE'/hosts' \
 	../extra-playbooks/k8s-galaxy/k8s-galaxy.yml \
 	--key-file "$PRIVATE_KEY"
+#  --write_to_/opt/galaxy_data/test.txt
 
-# Start BioBlend pod, provision galaxy dataset, start workflow
+# wait for write_to_/opt/galaxy_data/test.txt and write to local file
+ansible-playbook -b --become-user=root -i $PORTAL_DEPLOYMENTS_ROOT'/'$PORTAL_DEPLOYMENT_REFERENCE'/hosts' \
+	../extra-playbooks/get-results/get-results.yml \
+	--key-file "$PRIVATE_KEY" \
 
-# We need to copy the no-ip yaml files for ansible to somewhere sensible
-#terraform apply -state=contrib/terraform/openstack/terraform.tfstate -var-file=*.tfvars contrib/terraform/openstack
+helm_test_param=`cat helm_test_param.txt`

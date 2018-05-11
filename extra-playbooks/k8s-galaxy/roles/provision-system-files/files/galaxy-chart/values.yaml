@@ -101,3 +101,5 @@ postgres_for_galaxy:
 smtp_ssl: "False"
 
 restartPolicy: OnFailure
+
+helm_test_param: "123"

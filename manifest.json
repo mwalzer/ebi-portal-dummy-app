@@ -13,5 +13,5 @@
   "inputs": ["disk_image"],
   "deploymentParameters": [],
 
-  "outputs": ["external_ip"]
+  "outputs": ["helm_test_param"]
 }

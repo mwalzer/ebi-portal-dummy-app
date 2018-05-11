@@ -1,0 +1,7 @@
+---
+- name: Waiting for results
+  wait_for:
+    path: /opt/galaxy_data/test.txt
+
+- name: Transmitting content results
+  local_action: copy content="/opt/galaxy_data/test.txt" dest="helm_test_param.txt"
