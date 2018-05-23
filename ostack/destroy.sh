@@ -1,11 +1,11 @@
 #!/usr/bin/env bash
 set -e
-# Destroys Kubespray deployment 
-# The script assumes that env vars for authentication with OpenStack are already present.
 
-## Customise this ##
-export TF_VAR_DEPLOYMENT_KEY_PATH=$PORTAL_DEPLOYMENTS_ROOT'/'$PORTAL_DEPLOYMENT_REFERENCE'/'$PORTAL_DEPLOYMENT_REFERENCE'.pub'
+export TF_VAR_deployment_path="${PORTAL_DEPLOYMENTS_ROOT}/${PORTAL_DEPLOYMENT_REFERENCE}"
+echo "export TF_VAR_deployment_path=${TF_VAR_deployment_path}"
 
-# Destroy everything
-#cd ostack/terraform || exit
-terraform destroy --force --input=false --state=$PORTAL_DEPLOYMENTS_ROOT'/'$PORTAL_DEPLOYMENT_REFERENCE'/terraform.tfstate'
+# Export input variable in the bash environment
+export TF_VAR_name="$(awk -v var="$PORTAL_DEPLOYMENT_REFERENCE" 'BEGIN {print tolower(var)}')"
+
+# Destroys a virtual machine instance
+terraform destroy --force --state=$PORTAL_DEPLOYMENTS_ROOT'/'$PORTAL_DEPLOYMENT_REFERENCE'/terraform.tfstate' $PORTAL_APP_REPO_FOLDER'/ostack/terraform'
