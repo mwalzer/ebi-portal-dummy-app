@@ -54,20 +54,22 @@ echo "＼(＾O＾)／ Setting up Terraform creds" && \
 if [ -n ${K8S_MASTER_GX_PORT+x} ]; then echo "var is set"; fi
 
 export KARGO_TERRAFORM_FOLDER=$PORTAL_APP_REPO_FOLDER'/kubespray/contrib/terraform/openstack'
+echo "KARGO_TERRAFORM_FOLDER=$KARGO_TERRAFORM_FOLDER"
 
 echo "＼(＾O＾)／ Applying terraform"
 cd $PORTAL_APP_REPO_FOLDER'/kubespray'
 terraform apply --state=$PORTAL_DEPLOYMENTS_ROOT'/'$PORTAL_DEPLOYMENT_REFERENCE'/terraform.tfstate' $KARGO_TERRAFORM_FOLDER
+#cwd=/mnt/ecp/data/be_applications_folder/usr-45868085-9b3e-46fb-a818-17464c6f1718/portal-dummy-app.git/kubespray
+#export DPL=/mnt/ecp/data/be_deployments_folder/TSI1527335760407/
 
 echo "＼(＾O＾)／ Digesting the hosts file"
-cat $PORTAL_DEPLOYMENTS_ROOT'/'$PORTAL_DEPLOYMENT_REFERENCE'/hosts'
-cp contrib/terraform/terraform.py $PORTAL_DEPLOYMENTS_ROOT'/'$PORTAL_DEPLOYMENT_REFERENCE'/hosts'
+cp contrib/terraform/terraform.py $PORTAL_DEPLOYMENTS_ROOT'/'$PORTAL_DEPLOYMENT_REFERENCE'/terraform.py'
 cp -r inventory/group_vars $PORTAL_DEPLOYMENTS_ROOT'/'$PORTAL_DEPLOYMENT_REFERENCE'/'
-cat $PORTAL_DEPLOYMENTS_ROOT'/'$PORTAL_DEPLOYMENT_REFERENCE'/hosts'
 
 # $PORTAL_DEPLOYMENT_REFERENCE is set by portal and makes it unique per deployments
 
 echo "＼(＾O＾)／ Applying ansible playbooks"
+echo "cwd=$PWD"
 # Provision kubespray
 ansible-playbook --flush-cache -b --become-user=root -i $PORTAL_DEPLOYMENTS_ROOT'/'$PORTAL_DEPLOYMENT_REFERENCE'/hosts' cluster.yml \
 	--key-file "$PRIVATE_KEY" \
