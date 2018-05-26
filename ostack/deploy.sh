@@ -59,19 +59,24 @@ echo "KARGO_TERRAFORM_FOLDER=$KARGO_TERRAFORM_FOLDER"
 echo "＼(＾O＾)／ Applying terraform"
 cd $PORTAL_APP_REPO_FOLDER'/kubespray'
 terraform apply --state=$PORTAL_DEPLOYMENTS_ROOT'/'$PORTAL_DEPLOYMENT_REFERENCE'/terraform.tfstate' $KARGO_TERRAFORM_FOLDER
-#cwd=/mnt/ecp/data/be_applications_folder/usr-45868085-9b3e-46fb-a818-17464c6f1718/portal-dummy-app.git/kubespray
-#export DPL=/mnt/ecp/data/be_deployments_folder/TSI1527335760407/
 
 echo "＼(＾O＾)／ Digesting the hosts file"
 cp contrib/terraform/terraform.py $PORTAL_DEPLOYMENTS_ROOT'/'$PORTAL_DEPLOYMENT_REFERENCE'/terraform.py'
 cp -r inventory/group_vars $PORTAL_DEPLOYMENTS_ROOT'/'$PORTAL_DEPLOYMENT_REFERENCE'/'
 
 # $PORTAL_DEPLOYMENT_REFERENCE is set by portal and makes it unique per deployments
+#cwd=/mnt/ecp/data/be_applications_folder/usr-45868085-9b3e-46fb-a818-17464c6f1718/portal-dummy-app.git/kubespray
+#export DPL=/mnt/ecp/data/be_deployments_folder/TSI1527335760407/
+#terraform.py dyn inventory script looks recursive in . , . is cwd
+#solution? cd to deployment folder and correct ansible paths into kubespray yaml files
+cd $PORTAL_DEPLOYMENTS_ROOT'/'$PORTAL_DEPLOYMENT_REFERENCE
 
 echo "＼(＾O＾)／ Applying ansible playbooks"
 echo "cwd=$PWD"
 # Provision kubespray
-ansible-playbook --flush-cache -b --become-user=root -i $PORTAL_DEPLOYMENTS_ROOT'/'$PORTAL_DEPLOYMENT_REFERENCE'/terraform.py' cluster.yml \
+ansible-playbook --flush-cache -b --become-user=root \
+  -i $PORTAL_DEPLOYMENTS_ROOT'/'$PORTAL_DEPLOYMENT_REFERENCE'/terraform.py' \
+  $PORTAL_APP_REPO_FOLDER'/kubespray/cluster.yml' \
 	--key-file "$PRIVATE_KEY" \
 	-e bootstrap_os=ubuntu \
 	-e host_key_checking=false \
@@ -86,26 +91,29 @@ ansible-playbook --flush-cache -b --become-user=root -i $PORTAL_DEPLOYMENTS_ROOT
 
 
 # Provision glusterfs
-ansible-playbook -b --become-user=root -i $PORTAL_DEPLOYMENTS_ROOT'/'$PORTAL_DEPLOYMENT_REFERENCE'/terraform.py' \
-	./contrib/network-storage/glusterfs/glusterfs.yml \
+ansible-playbook -b --become-user=root \
+  -i $PORTAL_DEPLOYMENTS_ROOT'/'$PORTAL_DEPLOYMENT_REFERENCE'/terraform.py' \
+	$PORTAL_APP_REPO_FOLDER'/kubespray/contrib/network-storage/glusterfs/glusterfs.yml' \
 	--key-file "$PRIVATE_KEY" \
 	-e host_key_checking=false \
 	-e bootstrap_os=ubuntu
 
 # Set permissive access control and add '30700 open' security group
-ansible-playbook -b --become-user=root -i $PORTAL_DEPLOYMENTS_ROOT'/'$PORTAL_DEPLOYMENT_REFERENCE'/terraform.py' \
-	../extra-playbooks/rbac/rbac.yml \
+ansible-playbook -b --become-user=root \
+  -i $PORTAL_DEPLOYMENTS_ROOT'/'$PORTAL_DEPLOYMENT_REFERENCE'/terraform.py' \
+	$PORTAL_APP_REPO_FOLDER'/kubespray/extra-playbooks/rbac/rbac.yml' \
 	--key-file "$PRIVATE_KEY"
 
 # Start Galaxy, provision galaxy dataset, start workflow
-ansible-playbook -b --become-user=root -i $PORTAL_DEPLOYMENTS_ROOT'/'$PORTAL_DEPLOYMENT_REFERENCE'/terraform.py' \
-	../extra-playbooks/k8s-galaxy/k8s-galaxy.yml \
+ansible-playbook -b --become-user=root \
+  -i $PORTAL_DEPLOYMENTS_ROOT'/'$PORTAL_DEPLOYMENT_REFERENCE'/terraform.py' \
+	$PORTAL_APP_REPO_FOLDER'/kubespray/extra-playbooks/k8s-galaxy/k8s-galaxy.yml' \
 	--key-file "$PRIVATE_KEY"
 #  --write_to_/opt/galaxy_data/test.txt
 
 # wait for write_to_/opt/galaxy_data/test.txt and write to local file
 ansible-playbook -b --become-user=root -i $PORTAL_DEPLOYMENTS_ROOT'/'$PORTAL_DEPLOYMENT_REFERENCE'/terraform.py' \
-	../extra-playbooks/get-results/get-results.yml \
+	$PORTAL_APP_REPO_FOLDER'/kubespray/extra-playbooks/get-results/get-results.yml' \
 	--key-file "$PRIVATE_KEY" \
   --extra-vars "helm_test_param=789"
   #something like --extra-vars "helm_test_param=helm_test_param_in"
