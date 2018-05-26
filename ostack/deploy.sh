@@ -71,7 +71,7 @@ cp -r inventory/group_vars $PORTAL_DEPLOYMENTS_ROOT'/'$PORTAL_DEPLOYMENT_REFEREN
 echo "＼(＾O＾)／ Applying ansible playbooks"
 echo "cwd=$PWD"
 # Provision kubespray
-ansible-playbook --flush-cache -b --become-user=root -i $PORTAL_DEPLOYMENTS_ROOT'/'$PORTAL_DEPLOYMENT_REFERENCE'/hosts' cluster.yml \
+ansible-playbook --flush-cache -b --become-user=root -i $PORTAL_DEPLOYMENTS_ROOT'/'$PORTAL_DEPLOYMENT_REFERENCE'/terraform.py' cluster.yml \
 	--key-file "$PRIVATE_KEY" \
 	-e bootstrap_os=ubuntu \
 	-e host_key_checking=false \
@@ -86,25 +86,25 @@ ansible-playbook --flush-cache -b --become-user=root -i $PORTAL_DEPLOYMENTS_ROOT
 
 
 # Provision glusterfs
-ansible-playbook -b --become-user=root -i $PORTAL_DEPLOYMENTS_ROOT'/'$PORTAL_DEPLOYMENT_REFERENCE'/hosts' \
+ansible-playbook -b --become-user=root -i $PORTAL_DEPLOYMENTS_ROOT'/'$PORTAL_DEPLOYMENT_REFERENCE'/terraform.py' \
 	./contrib/network-storage/glusterfs/glusterfs.yml \
 	--key-file "$PRIVATE_KEY" \
 	-e host_key_checking=false \
 	-e bootstrap_os=ubuntu
 
 # Set permissive access control and add '30700 open' security group
-ansible-playbook -b --become-user=root -i $PORTAL_DEPLOYMENTS_ROOT'/'$PORTAL_DEPLOYMENT_REFERENCE'/hosts' \
+ansible-playbook -b --become-user=root -i $PORTAL_DEPLOYMENTS_ROOT'/'$PORTAL_DEPLOYMENT_REFERENCE'/terraform.py' \
 	../extra-playbooks/rbac/rbac.yml \
 	--key-file "$PRIVATE_KEY"
 
 # Start Galaxy, provision galaxy dataset, start workflow
-ansible-playbook -b --become-user=root -i $PORTAL_DEPLOYMENTS_ROOT'/'$PORTAL_DEPLOYMENT_REFERENCE'/hosts' \
+ansible-playbook -b --become-user=root -i $PORTAL_DEPLOYMENTS_ROOT'/'$PORTAL_DEPLOYMENT_REFERENCE'/terraform.py' \
 	../extra-playbooks/k8s-galaxy/k8s-galaxy.yml \
 	--key-file "$PRIVATE_KEY"
 #  --write_to_/opt/galaxy_data/test.txt
 
 # wait for write_to_/opt/galaxy_data/test.txt and write to local file
-ansible-playbook -b --become-user=root -i $PORTAL_DEPLOYMENTS_ROOT'/'$PORTAL_DEPLOYMENT_REFERENCE'/hosts' \
+ansible-playbook -b --become-user=root -i $PORTAL_DEPLOYMENTS_ROOT'/'$PORTAL_DEPLOYMENT_REFERENCE'/terraform.py' \
 	../extra-playbooks/get-results/get-results.yml \
 	--key-file "$PRIVATE_KEY" \
   --extra-vars "helm_test_param=789"
