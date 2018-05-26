@@ -33,7 +33,6 @@ VERSION = '0.3.0pre'
 
 def tfstates(root=None):
     root = root or os.getcwd()
-    print("debug hosts: root was ==", root, " now ==", os.getcwd())
     root = os.getcwd()
     for dirpath, _, filenames in os.walk(root):
         for name in filenames:
