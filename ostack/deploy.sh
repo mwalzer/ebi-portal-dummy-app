@@ -61,7 +61,7 @@ terraform apply --state=$PORTAL_DEPLOYMENTS_ROOT'/'$PORTAL_DEPLOYMENT_REFERENCE'
 
 echo "＼(＾O＾)／ Supply the inventory files"
 cp contrib/terraform/terraform.py $PORTAL_DEPLOYMENTS_ROOT'/'$PORTAL_DEPLOYMENT_REFERENCE'/terraform.py'
-cp -r inventory/group_vars $PORTAL_DEPLOYMENTS_ROOT'/'$PORTAL_DEPLOYMENT_REFERENCE'/'
+cp -r inventory $PORTAL_DEPLOYMENTS_ROOT'/'$PORTAL_DEPLOYMENT_REFERENCE'/'
 
 echo "＼(＾O＾)／ symlink the playbooks the inventory files"
 ls -lah $PORTAL_APP_REPO_FOLDER
@@ -72,7 +72,13 @@ ls -lah $PORTAL_APP_REPO_FOLDER
 #for i in $PORTAL_APP_REPO_FOLDER'/kubespray-2.3.0/*'; do
 #  ln -s $i $PORTAL_DEPLOYMENTS_ROOT'/'$PORTAL_DEPLOYMENT_REFERENCE'/'${i##*/};
 #done
-cp -r $PORTAL_APP_REPO_FOLDER'/kubespray-2.3.0/*' $PORTAL_DEPLOYMENTS_ROOT'/'$PORTAL_DEPLOYMENT_REFERENCE'/'
+cp -r $PORTAL_APP_REPO_FOLDER'/kubespray-2.3.0/roles' $PORTAL_DEPLOYMENTS_ROOT'/'$PORTAL_DEPLOYMENT_REFERENCE'/roles'
+cp -r $PORTAL_APP_REPO_FOLDER'/kubespray-2.3.0/scripts' $PORTAL_DEPLOYMENTS_ROOT'/'$PORTAL_DEPLOYMENT_REFERENCE'/scripts'
+cp -r $PORTAL_APP_REPO_FOLDER'/kubespray-2.3.0/library' $PORTAL_DEPLOYMENTS_ROOT'/'$PORTAL_DEPLOYMENT_REFERENCE'/library'
+cp -r $PORTAL_APP_REPO_FOLDER'/kubespray-2.3.0/contrib' $PORTAL_DEPLOYMENTS_ROOT'/'$PORTAL_DEPLOYMENT_REFERENCE'/contrib'
+cp -r $PORTAL_APP_REPO_FOLDER'/kubespray-2.3.0/extra_playbooks' $PORTAL_DEPLOYMENTS_ROOT'/'$PORTAL_DEPLOYMENT_REFERENCE'/extra_playbooks'
+cp $PORTAL_APP_REPO_FOLDER'/kubespray-2.3.0/setup*' $PORTAL_DEPLOYMENTS_ROOT'/'$PORTAL_DEPLOYMENT_REFERENCE'/'
+cp $PORTAL_APP_REPO_FOLDER'/kubespray-2.3.0/*.yml' $PORTAL_DEPLOYMENTS_ROOT'/'$PORTAL_DEPLOYMENT_REFERENCE'/'
 
 # $PORTAL_DEPLOYMENT_REFERENCE is set by portal and makes it unique per deployments
 #cwd=/mnt/ecp/data/be_applications_folder/usr-45868085-9b3e-46fb-a818-17464c6f1718/portal-dummy-app.git/kubespray
@@ -110,19 +116,19 @@ ansible-playbook -b --become-user=root \
 # Set permissive access control and add '30700 open' security group
 ansible-playbook -b --become-user=root \
   -i $PORTAL_DEPLOYMENTS_ROOT'/'$PORTAL_DEPLOYMENT_REFERENCE'/terraform.py' \
-	$PORTAL_DEPLOYMENTS_ROOT'/'$PORTAL_DEPLOYMENT_REFERENCE'/extra-playbooks/rbac/rbac.yml' \
+	$PORTAL_DEPLOYMENTS_ROOT'/'$PORTAL_DEPLOYMENT_REFERENCE'/extra_playbooks/rbac/rbac.yml' \
 	--key-file "$PRIVATE_KEY"
 
 # Start Galaxy, provision galaxy dataset, start workflow
 ansible-playbook -b --become-user=root \
   -i $PORTAL_DEPLOYMENTS_ROOT'/'$PORTAL_DEPLOYMENT_REFERENCE'/terraform.py' \
-	$PORTAL_DEPLOYMENTS_ROOT'/'$PORTAL_DEPLOYMENT_REFERENCE'/extra-playbooks/k8s-galaxy/k8s-galaxy.yml' \
+	$PORTAL_DEPLOYMENTS_ROOT'/'$PORTAL_DEPLOYMENT_REFERENCE'/extra_playbooks/k8s-galaxy/k8s-galaxy.yml' \
 	--key-file "$PRIVATE_KEY"
 #  --write_to_/opt/galaxy_data/test.txt
 
 # wait for write_to_/opt/galaxy_data/test.txt and write to local file
 ansible-playbook -b --become-user=root -i $PORTAL_DEPLOYMENTS_ROOT'/'$PORTAL_DEPLOYMENT_REFERENCE'/terraform.py' \
-	$PORTAL_DEPLOYMENTS_ROOT'/'$PORTAL_DEPLOYMENT_REFERENCE'/extra-playbooks/get-results/get-results.yml' \
+	$PORTAL_DEPLOYMENTS_ROOT'/'$PORTAL_DEPLOYMENT_REFERENCE'/extra_playbooks/get-results/get-results.yml' \
 	--key-file "$PRIVATE_KEY" \
   --extra-vars "helm_test_param=789"
   #something like --extra-vars "helm_test_param=helm_test_param_in"
