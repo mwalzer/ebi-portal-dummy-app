@@ -59,9 +59,12 @@ echo "＼(＾O＾)／ Applying terraform"
 cd $PORTAL_APP_REPO_FOLDER'/kubespray'
 terraform apply --state=$PORTAL_DEPLOYMENTS_ROOT'/'$PORTAL_DEPLOYMENT_REFERENCE'/terraform.tfstate' $KARGO_TERRAFORM_FOLDER
 
-echo "＼(＾O＾)／ Digesting the hosts file"
+echo "＼(＾O＾)／ Supply the inventory files"
 cp contrib/terraform/terraform.py $PORTAL_DEPLOYMENTS_ROOT'/'$PORTAL_DEPLOYMENT_REFERENCE'/terraform.py'
 cp -r inventory/group_vars $PORTAL_DEPLOYMENTS_ROOT'/'$PORTAL_DEPLOYMENT_REFERENCE'/'
+
+echo "＼(＾O＾)／ symlink the playbooks the inventory files"
+ls $PORTAL_APP_REPO_FOLDER'/kubespray/*'
 for i in $PORTAL_APP_REPO_FOLDER'/kubespray/*'; do
   ln -s $i $PORTAL_DEPLOYMENTS_ROOT'/'$PORTAL_DEPLOYMENT_REFERENCE'/'${i##*/};
 done
