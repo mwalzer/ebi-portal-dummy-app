@@ -64,6 +64,7 @@ cp contrib/terraform/terraform.py $PORTAL_DEPLOYMENTS_ROOT'/'$PORTAL_DEPLOYMENT_
 cp -r inventory/group_vars $PORTAL_DEPLOYMENTS_ROOT'/'$PORTAL_DEPLOYMENT_REFERENCE'/'
 
 echo "＼(＾O＾)／ symlink the playbooks the inventory files"
+ls -lah $PORTAL_APP_REPO_FOLDER
 #for i in $PORTAL_APP_REPO_FOLDER'/kubespray/*'; do
 #  echo $i;
 #done
