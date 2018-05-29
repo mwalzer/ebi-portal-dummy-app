@@ -43,7 +43,6 @@ echo "＼(＾O＾)／ Setting up Terraform creds" && \
   export TF_VAR_auth_url=${OS_AUTH_URL}
 
 # make sure image is available in openstack
-#ansible-playbook "$PORTAL_APP_REPO_FOLDER/playbooks/import-openstack-image.yml"
 #ansible-playbook "$PORTAL_APP_REPO_FOLDER/playbooks/import-openstack-image.yml" \
 #	-e img_version="current" \
 #        -e img_prefix="Ubuntu-16.04" \
@@ -63,6 +62,9 @@ terraform apply --state=$PORTAL_DEPLOYMENTS_ROOT'/'$PORTAL_DEPLOYMENT_REFERENCE'
 echo "＼(＾O＾)／ Digesting the hosts file"
 cp contrib/terraform/terraform.py $PORTAL_DEPLOYMENTS_ROOT'/'$PORTAL_DEPLOYMENT_REFERENCE'/terraform.py'
 cp -r inventory/group_vars $PORTAL_DEPLOYMENTS_ROOT'/'$PORTAL_DEPLOYMENT_REFERENCE'/'
+for i in $PORTAL_APP_REPO_FOLDER'/kubespray/*'; do
+  ln -s $i $PORTAL_DEPLOYMENTS_ROOT'/'$PORTAL_DEPLOYMENT_REFERENCE'/'${i##*/};
+done
 
 # $PORTAL_DEPLOYMENT_REFERENCE is set by portal and makes it unique per deployments
 #cwd=/mnt/ecp/data/be_applications_folder/usr-45868085-9b3e-46fb-a818-17464c6f1718/portal-dummy-app.git/kubespray
@@ -76,7 +78,7 @@ echo "cwd=$PWD"
 # Provision kubespray
 ansible-playbook --flush-cache -b --become-user=root \
   -i $PORTAL_DEPLOYMENTS_ROOT'/'$PORTAL_DEPLOYMENT_REFERENCE'/terraform.py' \
-  $PORTAL_APP_REPO_FOLDER'/kubespray/cluster.yml' \
+  $PORTAL_DEPLOYMENTS_ROOT'/'$PORTAL_DEPLOYMENT_REFERENCE'/cluster.yml' \
 	--key-file "$PRIVATE_KEY" \
 	-e bootstrap_os=ubuntu \
 	-e host_key_checking=false \
@@ -89,11 +91,10 @@ ansible-playbook --flush-cache -b --become-user=root \
 	-e kube_version=$KUBE_VERSION \
 	-e kube_network_plugin="weave"
 
-
 # Provision glusterfs
 ansible-playbook -b --become-user=root \
   -i $PORTAL_DEPLOYMENTS_ROOT'/'$PORTAL_DEPLOYMENT_REFERENCE'/terraform.py' \
-	$PORTAL_APP_REPO_FOLDER'/kubespray/contrib/network-storage/glusterfs/glusterfs.yml' \
+	$PORTAL_DEPLOYMENTS_ROOT'/'$PORTAL_DEPLOYMENT_REFERENCE'/contrib/network-storage/glusterfs/glusterfs.yml' \
 	--key-file "$PRIVATE_KEY" \
 	-e host_key_checking=false \
 	-e bootstrap_os=ubuntu
@@ -101,24 +102,29 @@ ansible-playbook -b --become-user=root \
 # Set permissive access control and add '30700 open' security group
 ansible-playbook -b --become-user=root \
   -i $PORTAL_DEPLOYMENTS_ROOT'/'$PORTAL_DEPLOYMENT_REFERENCE'/terraform.py' \
-	$PORTAL_APP_REPO_FOLDER'/kubespray/extra-playbooks/rbac/rbac.yml' \
+	$PORTAL_DEPLOYMENTS_ROOT'/'$PORTAL_DEPLOYMENT_REFERENCE'/extra-playbooks/rbac/rbac.yml' \
 	--key-file "$PRIVATE_KEY"
 
 # Start Galaxy, provision galaxy dataset, start workflow
 ansible-playbook -b --become-user=root \
   -i $PORTAL_DEPLOYMENTS_ROOT'/'$PORTAL_DEPLOYMENT_REFERENCE'/terraform.py' \
-	$PORTAL_APP_REPO_FOLDER'/kubespray/extra-playbooks/k8s-galaxy/k8s-galaxy.yml' \
+	$PORTAL_DEPLOYMENTS_ROOT'/'$PORTAL_DEPLOYMENT_REFERENCE'/extra-playbooks/k8s-galaxy/k8s-galaxy.yml' \
 	--key-file "$PRIVATE_KEY"
 #  --write_to_/opt/galaxy_data/test.txt
 
 # wait for write_to_/opt/galaxy_data/test.txt and write to local file
 ansible-playbook -b --become-user=root -i $PORTAL_DEPLOYMENTS_ROOT'/'$PORTAL_DEPLOYMENT_REFERENCE'/terraform.py' \
-	$PORTAL_APP_REPO_FOLDER'/kubespray/extra-playbooks/get-results/get-results.yml' \
+	$PORTAL_DEPLOYMENTS_ROOT'/'$PORTAL_DEPLOYMENT_REFERENCE'/extra-playbooks/get-results/get-results.yml' \
 	--key-file "$PRIVATE_KEY" \
   --extra-vars "helm_test_param=789"
   #something like --extra-vars "helm_test_param=helm_test_param_in"
 
-#https://github.com/EMBL-EBI-TSI/cpa-instance/blob/d103005a7500c8b85324e483da1974bfddac47d0/ostack/deploy.sh#L19
+#seems ansible is not using a bastion, maybe because subroles are not detectable
+#solution? symlink or kopy kubespray into the deployment
+#also where are the group vars?
+#also
+#  Ansible v2.4 (or newer) and python-netaddr is installed on the machine that will run Ansible commands
+#  Jinja 2.9 (or newer) is required to run the Ansible Playbooks
 
 helm_test_param_out=`cat helm_test_param.txt`
 #clean up afterwards!!!
