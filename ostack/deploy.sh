@@ -89,6 +89,9 @@ cp $PORTAL_APP_REPO_FOLDER'/kubespray-2.3.0/cluster.yml' $PORTAL_DEPLOYMENTS_ROO
 #solution? cd to deployment folder and correct ansible paths into kubespray yaml files
 cd $PORTAL_DEPLOYMENTS_ROOT'/'$PORTAL_DEPLOYMENT_REFERENCE
 
+echo "＼(＾O＾)／ Giving cloudinit some more time (and avoid ssh unavailability)"
+sleep 10
+
 echo "＼(＾O＾)／ Applying ansible playbooks"
 echo "cwd=$PWD"
 # Provision kubespray
