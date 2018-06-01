@@ -61,8 +61,7 @@ mkdir -p $PORTAL_DEPLOYMENTS_ROOT'/'$PORTAL_DEPLOYMENT_REFERENCE'/kubespray'
 cp contrib/terraform/terraform.py $PORTAL_DEPLOYMENTS_ROOT'/'$PORTAL_DEPLOYMENT_REFERENCE'/terraform.py'
 ln -s inventory/group_vars $PORTAL_DEPLOYMENTS_ROOT'/'$PORTAL_DEPLOYMENT_REFERENCE'/group_vars'
 
-echo "＼(＾O＾)／ symlink the playbooks the inventory files"
-ls -lah $PORTAL_APP_REPO_FOLDER
+echo "＼(＾O＾)／ symlink the playbooks, the inventory files"
 #for i in $PORTAL_APP_REPO_FOLDER'/kubespray/*'; do
 #  echo $i;
 #done
@@ -81,12 +80,13 @@ ls -lah $PORTAL_APP_REPO_FOLDER
 # cp $PORTAL_APP_REPO_FOLDER'/kubespray-2.3.0/cluster.yml' $PORTAL_DEPLOYMENTS_ROOT'/'$PORTAL_DEPLOYMENT_REFERENCE'/'
 for i in $PORTAL_APP_REPO_FOLDER'/kubespray/*'; do
   if [[ -d $i ]]; then
-        cp -r $i $PORTAL_DEPLOYMENTS_ROOT'/'$PORTAL_DEPLOYMENT_REFERENCE'/kubespray/'${i##*/};
+        ln -s $i $PORTAL_DEPLOYMENTS_ROOT'/'$PORTAL_DEPLOYMENT_REFERENCE'/kubespray/'${i##*/};
   fi
   if [[ -f $i ]]; then
-        cp $i $PORTAL_DEPLOYMENTS_ROOT'/'$PORTAL_DEPLOYMENT_REFERENCE'/kubespray/'${i##*/};
+        ln -s $i $PORTAL_DEPLOYMENTS_ROOT'/'$PORTAL_DEPLOYMENT_REFERENCE'/kubespray/'${i##*/};
   fi
 done
+ls -lah $PORTAL_DEPLOYMENTS_ROOT'/'$PORTAL_DEPLOYMENT_REFERENCE'/kubespray/'
 
 
 # $PORTAL_DEPLOYMENT_REFERENCE is set by portal and makes it unique per deployments
