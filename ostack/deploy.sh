@@ -83,13 +83,14 @@ for i in $PORTAL_APP_REPO_FOLDER'/kubespray-2.3.0/*'; do
   if [[ -d $i ]]; then
         ln -s $i $PORTAL_DEPLOYMENTS_ROOT'/'$PORTAL_DEPLOYMENT_REFERENCE'/kubespray/'${i##*/}
         ls -lah $PORTAL_DEPLOYMENTS_ROOT'/'$PORTAL_DEPLOYMENT_REFERENCE'/kubespray/'${i##*/}
-  fi
-  if [[ -f $i ]]; then
+  elif [[ -f $i ]]; then
         ln -s $i $PORTAL_DEPLOYMENTS_ROOT'/'$PORTAL_DEPLOYMENT_REFERENCE'/kubespray/'${i##*/}
         ls -lah $PORTAL_DEPLOYMENTS_ROOT'/'$PORTAL_DEPLOYMENT_REFERENCE'/kubespray/'${i##*/}
+  else
+    echo "Dunno what to do with "$i
   fi
 done
-ls -lah $PORTAL_DEPLOYMENTS_ROOT'/'$PORTAL_DEPLOYMENT_REFERENCE
+ls -lah $PORTAL_DEPLOYMENTS_ROOT'/'$PORTAL_DEPLOYMENT_REFERENCE'/kubespray/'
 
 
 # $PORTAL_DEPLOYMENT_REFERENCE is set by portal and makes it unique per deployments
