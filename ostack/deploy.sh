@@ -6,13 +6,19 @@ set -eE
 
 # keys exists at $PUBLIC_KEY, $PRIVATE_KEY and profile key at $ssh_key
 export TF_VAR_public_key_path=$PUBLIC_KEY
+echo "export TF_VAR_public_key_path=${TF_VAR_public_key_path}"
 
-set -e
-# Provisions a virtual machine instance
+export TF_VAR_key_path="${KEY_PATH}"
+echo "export TF_VAR_key_path=${TF_VAR_key_path}"
 
-# Local variables
 export TF_VAR_deployment_path="${PORTAL_DEPLOYMENTS_ROOT}/${PORTAL_DEPLOYMENT_REFERENCE}"
 echo "export TF_VAR_deployment_path=${TF_VAR_deployment_path}"
+
+export TF_VAR_name="$(awk -v var="${PORTAL_DEPLOYMENT_REFERENCE}" 'BEGIN {print tolower(var)}')"
+echo "export TF_VAR_name=${TF_VAR_name}"
+
+export TF_STATE=${DPL}'terraform.tfstate'
+echo "export TF_STATE=${TF_STATE}"
 
 export DPL="${PORTAL_DEPLOYMENTS_ROOT}/${PORTAL_DEPLOYMENT_REFERENCE}/"
 echo "export DPL=${DPL}"
@@ -20,18 +26,14 @@ echo "export DPL=${DPL}"
 export PRIV_KEY_PATH="${DPL}${PORTAL_DEPLOYMENT_REFERENCE}"
 echo "export PRIV_KEY_PATH=${PRIV_KEY_PATH}"
 
-export TF_VAR_key_path="${KEY_PATH}"
-echo "export TF_VAR_key_path=${TF_VAR_key_path}"
-
-# Export input variables in the bash environment
-export TF_VAR_name="$(awk -v var="${PORTAL_DEPLOYMENT_REFERENCE}" 'BEGIN {print tolower(var)}')"
-echo "export TF_VAR_name=${TF_VAR_name}"
-
 export KEY_PATH="${DPL}${PORTAL_DEPLOYMENT_REFERENCE}.pub"
 echo "export KEY_PATH=${KEY_PATH}"
 
-export TF_STATE=${DPL}'terraform.tfstate'
-echo "export TF_STATE=${TF_STATE}"
+if [ -n ${K8S_MASTER_GX_PORT+x} ]; then echo "GX port var set"; fi
+
+export KARGO_TERRAFORM_FOLDER=$PORTAL_APP_REPO_FOLDER'/kubespray/contrib/terraform/openstack'
+echo "KARGO_TERRAFORM_FOLDER=$KARGO_TERRAFORM_FOLDER"
+
 
 eval $(ssh-agent -s)
 ssh-add $PRIVATE_KEY
@@ -50,19 +52,15 @@ echo "＼(＾O＾)／ Setting up Terraform creds" && \
 #	-e url_suffix="xenial-server-cloudimg-amd64-disk1.img" \
 #	-e compress_suffix=""
 
-if [ -n ${K8S_MASTER_GX_PORT+x} ]; then echo "var is set"; fi
-
-export KARGO_TERRAFORM_FOLDER=$PORTAL_APP_REPO_FOLDER'/kubespray/contrib/terraform/openstack'
-echo "KARGO_TERRAFORM_FOLDER=$KARGO_TERRAFORM_FOLDER"
-
 echo "＼(＾O＾)／ Applying terraform"
 cd $PORTAL_APP_REPO_FOLDER'/kubespray'
 terraform apply --state=$PORTAL_DEPLOYMENTS_ROOT'/'$PORTAL_DEPLOYMENT_REFERENCE'/terraform.tfstate' $KARGO_TERRAFORM_FOLDER
 
-echo "＼(＾O＾)／ Supply the inventory files"
+echo "＼(＾O＾)／ Prepare the deployment substructure and link infrastructure"
+mkdir -p $PORTAL_DEPLOYMENTS_ROOT'/'$PORTAL_DEPLOYMENT_REFERENCE'/kubespray'
+ln -s $PORTAL_DEPLOYMENTS_ROOT'/'$PORTAL_DEPLOYMENT_REFERENCE'/terraform.tfstate' $PORTAL_DEPLOYMENTS_ROOT'/'$PORTAL_DEPLOYMENT_REFERENCE'/infrastructure/terraform.tfstate'
 cp contrib/terraform/terraform.py $PORTAL_DEPLOYMENTS_ROOT'/'$PORTAL_DEPLOYMENT_REFERENCE'/terraform.py'
-cp -r inventory $PORTAL_DEPLOYMENTS_ROOT'/'$PORTAL_DEPLOYMENT_REFERENCE'/'
-cp -r inventory/group_vars $PORTAL_DEPLOYMENTS_ROOT'/'$PORTAL_DEPLOYMENT_REFERENCE'/'
+ln -s inventory/group_vars $PORTAL_DEPLOYMENTS_ROOT'/'$PORTAL_DEPLOYMENT_REFERENCE'/group_vars'
 
 echo "＼(＾O＾)／ symlink the playbooks the inventory files"
 ls -lah $PORTAL_APP_REPO_FOLDER
@@ -73,33 +71,35 @@ ls -lah $PORTAL_APP_REPO_FOLDER
 #for i in $PORTAL_APP_REPO_FOLDER'/kubespray-2.3.0/*'; do
 #  ln -s $i $PORTAL_DEPLOYMENTS_ROOT'/'$PORTAL_DEPLOYMENT_REFERENCE'/'${i##*/};
 #done
-cp -r $PORTAL_APP_REPO_FOLDER'/kubespray-2.3.0/roles' $PORTAL_DEPLOYMENTS_ROOT'/'$PORTAL_DEPLOYMENT_REFERENCE'/roles'
-cp -r $PORTAL_APP_REPO_FOLDER'/kubespray-2.3.0/scripts' $PORTAL_DEPLOYMENTS_ROOT'/'$PORTAL_DEPLOYMENT_REFERENCE'/scripts'
-cp -r $PORTAL_APP_REPO_FOLDER'/kubespray-2.3.0/library' $PORTAL_DEPLOYMENTS_ROOT'/'$PORTAL_DEPLOYMENT_REFERENCE'/library'
-cp -r $PORTAL_APP_REPO_FOLDER'/kubespray-2.3.0/contrib' $PORTAL_DEPLOYMENTS_ROOT'/'$PORTAL_DEPLOYMENT_REFERENCE'/contrib'
-cp -r $PORTAL_APP_REPO_FOLDER'/kubespray-2.3.0/extra_playbooks' $PORTAL_DEPLOYMENTS_ROOT'/'$PORTAL_DEPLOYMENT_REFERENCE'/extra_playbooks'
-cp $PORTAL_APP_REPO_FOLDER'/kubespray-2.3.0/ansible.cfg' $PORTAL_DEPLOYMENTS_ROOT'/'$PORTAL_DEPLOYMENT_REFERENCE'/'
-cp $PORTAL_APP_REPO_FOLDER'/kubespray-2.3.0/setup.cfg' $PORTAL_DEPLOYMENTS_ROOT'/'$PORTAL_DEPLOYMENT_REFERENCE'/'
-cp $PORTAL_APP_REPO_FOLDER'/kubespray-2.3.0/setup.py' $PORTAL_DEPLOYMENTS_ROOT'/'$PORTAL_DEPLOYMENT_REFERENCE'/'
-cp $PORTAL_APP_REPO_FOLDER'/kubespray-2.3.0/cluster.yml' $PORTAL_DEPLOYMENTS_ROOT'/'$PORTAL_DEPLOYMENT_REFERENCE'/'
-ls $PORTAL_DEPLOYMENTS_ROOT'/'$PORTAL_DEPLOYMENT_REFERENCE'/inventory'
-cat $PORTAL_DEPLOYMENTS_ROOT'/'$PORTAL_DEPLOYMENT_REFERENCE'/inventory/group_vars/no-floating.yml'
+# cp -r $PORTAL_APP_REPO_FOLDER'/kubespray-2.3.0/roles' $PORTAL_DEPLOYMENTS_ROOT'/'$PORTAL_DEPLOYMENT_REFERENCE'/kubespray/roles'
+# cp -r $PORTAL_APP_REPO_FOLDER'/kubespray-2.3.0/scripts' $PORTAL_DEPLOYMENTS_ROOT'/'$PORTAL_DEPLOYMENT_REFERENCE'/kubespray/scripts'
+# cp -r $PORTAL_APP_REPO_FOLDER'/kubespray-2.3.0/library' $PORTAL_DEPLOYMENTS_ROOT'/'$PORTAL_DEPLOYMENT_REFERENCE'/kubespray/library'
+# cp -r $PORTAL_APP_REPO_FOLDER'/kubespray-2.3.0/contrib' $PORTAL_DEPLOYMENTS_ROOT'/'$PORTAL_DEPLOYMENT_REFERENCE'/kubespray/contrib'
+# cp -r $PORTAL_APP_REPO_FOLDER'/kubespray-2.3.0/extra_playbooks' $PORTAL_DEPLOYMENTS_ROOT'/'$PORTAL_DEPLOYMENT_REFERENCE'/kubespray/extra_playbooks'
+# cp $PORTAL_APP_REPO_FOLDER'/kubespray-2.3.0/ansible.cfg' $PORTAL_DEPLOYMENTS_ROOT'/'$PORTAL_DEPLOYMENT_REFERENCE'/'
+# cp $PORTAL_APP_REPO_FOLDER'/kubespray-2.3.0/setup.cfg' $PORTAL_DEPLOYMENTS_ROOT'/'$PORTAL_DEPLOYMENT_REFERENCE'/'
+# cp $PORTAL_APP_REPO_FOLDER'/kubespray-2.3.0/setup.py' $PORTAL_DEPLOYMENTS_ROOT'/'$PORTAL_DEPLOYMENT_REFERENCE'/'
+# cp $PORTAL_APP_REPO_FOLDER'/kubespray-2.3.0/cluster.yml' $PORTAL_DEPLOYMENTS_ROOT'/'$PORTAL_DEPLOYMENT_REFERENCE'/'
+for i in $PORTAL_APP_REPO_FOLDER'/kubespray/*'; do
+  cp -r $i $PORTAL_DEPLOYMENTS_ROOT'/'$PORTAL_DEPLOYMENT_REFERENCE'/kubespray/'${i##*/};
+done
+
 # $PORTAL_DEPLOYMENT_REFERENCE is set by portal and makes it unique per deployments
 #cwd=/mnt/ecp/data/be_applications_folder/usr-45868085-9b3e-46fb-a818-17464c6f1718/portal-dummy-app.git/kubespray
 #export DPL=/mnt/ecp/data/be_deployments_folder/TSI1527335760407/
 #terraform.py dyn inventory script looks recursive in . , . is cwd
 #solution? cd to deployment folder and correct ansible paths into kubespray yaml files
-cd $PORTAL_DEPLOYMENTS_ROOT'/'$PORTAL_DEPLOYMENT_REFERENCE
 
 echo "＼(＾O＾)／ Giving cloudinit some more time (and avoid ssh unavailability)"
 sleep 10
 
 echo "＼(＾O＾)／ Applying ansible playbooks"
+cd $PORTAL_DEPLOYMENTS_ROOT'/'$PORTAL_DEPLOYMENT_REFERENCE'/kubespray'
 echo "cwd=$PWD"
 # Provision kubespray
 ansible-playbook --flush-cache -b --become-user=root \
   -i $PORTAL_DEPLOYMENTS_ROOT'/'$PORTAL_DEPLOYMENT_REFERENCE'/terraform.py' \
-  $PORTAL_DEPLOYMENTS_ROOT'/'$PORTAL_DEPLOYMENT_REFERENCE'/cluster.yml' \
+  $PORTAL_DEPLOYMENTS_ROOT'/'$PORTAL_DEPLOYMENT_REFERENCE'/kubespray/cluster.yml' \
 	--key-file "$PRIVATE_KEY" \
 	-e bootstrap_os=ubuntu \
 	-e host_key_checking=false \
@@ -115,7 +115,7 @@ ansible-playbook --flush-cache -b --become-user=root \
 # Provision glusterfs
 ansible-playbook -b --become-user=root \
   -i $PORTAL_DEPLOYMENTS_ROOT'/'$PORTAL_DEPLOYMENT_REFERENCE'/terraform.py' \
-	$PORTAL_DEPLOYMENTS_ROOT'/'$PORTAL_DEPLOYMENT_REFERENCE'/contrib/network-storage/glusterfs/glusterfs.yml' \
+	$PORTAL_DEPLOYMENTS_ROOT'/'$PORTAL_DEPLOYMENT_REFERENCE'/kubespray/contrib/network-storage/glusterfs/glusterfs.yml' \
 	--key-file "$PRIVATE_KEY" \
 	-e host_key_checking=false \
 	-e bootstrap_os=ubuntu
