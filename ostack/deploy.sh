@@ -107,7 +107,7 @@ echo "＼(＾O＾)／ Giving cloudinit some more time (and avoid ssh unavailabil
 sleep 10
 
 echo "＼(＾O＾)／ Applying ansible playbooks"
-cd $PORTAL_DEPLOYMENTS_ROOT'/'$PORTAL_DEPLOYMENT_REFERENCE'/kubespray'
+cd $PORTAL_DEPLOYMENTS_ROOT'/'$PORTAL_DEPLOYMENT_REFERENCE
 echo "cwd=$PWD"
 # Provision kubespray
 ansible-playbook --flush-cache -b --become-user=root \
