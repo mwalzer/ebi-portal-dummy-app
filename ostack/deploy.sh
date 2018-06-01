@@ -88,7 +88,6 @@ for i in $PORTAL_APP_REPO_FOLDER'/kubespray/*'; do
   fi
 done
 
-done
 
 # $PORTAL_DEPLOYMENT_REFERENCE is set by portal and makes it unique per deployments
 #cwd=/mnt/ecp/data/be_applications_folder/usr-45868085-9b3e-46fb-a818-17464c6f1718/portal-dummy-app.git/kubespray
