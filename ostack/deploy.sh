@@ -78,6 +78,7 @@ echo "＼(＾O＾)／ symlink the playbooks, the inventory files"
 # cp $PORTAL_APP_REPO_FOLDER'/kubespray-2.3.0/setup.cfg' $PORTAL_DEPLOYMENTS_ROOT'/'$PORTAL_DEPLOYMENT_REFERENCE'/'
 # cp $PORTAL_APP_REPO_FOLDER'/kubespray-2.3.0/setup.py' $PORTAL_DEPLOYMENTS_ROOT'/'$PORTAL_DEPLOYMENT_REFERENCE'/'
 # cp $PORTAL_APP_REPO_FOLDER'/kubespray-2.3.0/cluster.yml' $PORTAL_DEPLOYMENTS_ROOT'/'$PORTAL_DEPLOYMENT_REFERENCE'/'
+ls -lah $PORTAL_APP_REPO_FOLDER'/kubespray-2.3.0/'
 for i in $PORTAL_APP_REPO_FOLDER'/kubespray-2.3.0/*'; do
   if [[ -d $i ]]; then
         ln -s $i $PORTAL_DEPLOYMENTS_ROOT'/'$PORTAL_DEPLOYMENT_REFERENCE'/kubespray/'${i##*/}
