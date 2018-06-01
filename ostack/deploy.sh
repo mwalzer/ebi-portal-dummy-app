@@ -80,7 +80,14 @@ ls -lah $PORTAL_APP_REPO_FOLDER
 # cp $PORTAL_APP_REPO_FOLDER'/kubespray-2.3.0/setup.py' $PORTAL_DEPLOYMENTS_ROOT'/'$PORTAL_DEPLOYMENT_REFERENCE'/'
 # cp $PORTAL_APP_REPO_FOLDER'/kubespray-2.3.0/cluster.yml' $PORTAL_DEPLOYMENTS_ROOT'/'$PORTAL_DEPLOYMENT_REFERENCE'/'
 for i in $PORTAL_APP_REPO_FOLDER'/kubespray/*'; do
-  cp -r $i $PORTAL_DEPLOYMENTS_ROOT'/'$PORTAL_DEPLOYMENT_REFERENCE'/kubespray/'${i##*/};
+  if [[ -d $i ]]; then
+        cp -r $i $PORTAL_DEPLOYMENTS_ROOT'/'$PORTAL_DEPLOYMENT_REFERENCE'/kubespray/'${i##*/};
+  fi
+  if [[ -f $i ]]; then
+        cp $i $PORTAL_DEPLOYMENTS_ROOT'/'$PORTAL_DEPLOYMENT_REFERENCE'/kubespray/'${i##*/};
+  fi
+done
+
 done
 
 # $PORTAL_DEPLOYMENT_REFERENCE is set by portal and makes it unique per deployments
