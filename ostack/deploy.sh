@@ -58,8 +58,8 @@ terraform apply --state=$PORTAL_DEPLOYMENTS_ROOT'/'$PORTAL_DEPLOYMENT_REFERENCE'
 
 echo "＼(＾O＾)／ Prepare the deployment substructure and link infrastructure"
 mkdir -p $PORTAL_DEPLOYMENTS_ROOT'/'$PORTAL_DEPLOYMENT_REFERENCE'/kubespray'
-cp contrib/terraform/terraform.py $PORTAL_DEPLOYMENTS_ROOT'/'$PORTAL_DEPLOYMENT_REFERENCE'/terraform.py'
-ln -s inventory/group_vars $PORTAL_DEPLOYMENTS_ROOT'/'$PORTAL_DEPLOYMENT_REFERENCE'/'
+cp $PORTAL_DEPLOYMENTS_ROOT'/'$PORTAL_DEPLOYMENT_REFERENCE'/kubespray/contrib/terraform/terraform.py' $PORTAL_DEPLOYMENTS_ROOT'/'$PORTAL_DEPLOYMENT_REFERENCE'/terraform.py'
+ln -s $PORTAL_APP_REPO_FOLDER'/kubespray/inventory/group_vars' $PORTAL_DEPLOYMENTS_ROOT'/'$PORTAL_DEPLOYMENT_REFERENCE'/'
 
 echo "＼(＾O＾)／ symlink the playbooks, the inventory files"
 #for i in $PORTAL_APP_REPO_FOLDER'/kubespray/*'; do
@@ -78,7 +78,7 @@ echo "＼(＾O＾)／ symlink the playbooks, the inventory files"
 # cp $PORTAL_APP_REPO_FOLDER'/kubespray-2.3.0/setup.cfg' $PORTAL_DEPLOYMENTS_ROOT'/'$PORTAL_DEPLOYMENT_REFERENCE'/'
 # cp $PORTAL_APP_REPO_FOLDER'/kubespray-2.3.0/setup.py' $PORTAL_DEPLOYMENTS_ROOT'/'$PORTAL_DEPLOYMENT_REFERENCE'/'
 # cp $PORTAL_APP_REPO_FOLDER'/kubespray-2.3.0/cluster.yml' $PORTAL_DEPLOYMENTS_ROOT'/'$PORTAL_DEPLOYMENT_REFERENCE'/'
-for i in $PORTAL_APP_REPO_FOLDER'/kubespray/*'; do
+for i in $PORTAL_APP_REPO_FOLDER'/kubespray-2.3.0/*'; do
   if [[ -d $i ]]; then
         ln -s $i $PORTAL_DEPLOYMENTS_ROOT'/'$PORTAL_DEPLOYMENT_REFERENCE'/kubespray/'${i##*/}
         ls -lah $PORTAL_DEPLOYMENTS_ROOT'/'$PORTAL_DEPLOYMENT_REFERENCE'/kubespray/'${i##*/}
