@@ -81,6 +81,7 @@ ln -s $PORTAL_APP_REPO_FOLDER'/kubespray-2.3.0/setup.cfg' $PORTAL_DEPLOYMENTS_RO
 ln -s $PORTAL_APP_REPO_FOLDER'/kubespray-2.3.0/setup.py' $PORTAL_DEPLOYMENTS_ROOT'/'$PORTAL_DEPLOYMENT_REFERENCE'/kubespray/setup.py'
 ln -s $PORTAL_APP_REPO_FOLDER'/kubespray-2.3.0/cluster.yml' $PORTAL_DEPLOYMENTS_ROOT'/'$PORTAL_DEPLOYMENT_REFERENCE'/kubespray/cluster.yml'
 ln -s $PORTAL_APP_REPO_FOLDER'/kubespray-2.3.0/Vagrantfile' $PORTAL_DEPLOYMENTS_ROOT'/'$PORTAL_DEPLOYMENT_REFERENCE'/kubespray/Vagrantfile'
+ln -s $PORTAL_APP_REPO_FOLDER'/extra_playbooks' $PORTAL_DEPLOYMENTS_ROOT'/'$PORTAL_DEPLOYMENT_REFERENCE'/extra_playbooks'
 # ls -lah $PORTAL_APP_REPO_FOLDER'/kubespray-2.3.0/'
 # for i in ls $PORTAL_APP_REPO_FOLDER'/kubespray-2.3.0/*'; do
 #   if [[ -d $i ]]; then

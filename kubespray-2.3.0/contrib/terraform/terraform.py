@@ -33,12 +33,11 @@ VERSION = '0.3.0pre'
 
 def tfstates(root=None):
     root = root or os.getcwd()
-    root = os.getcwd()
     for dirpath, _, filenames in os.walk(root):
         for name in filenames:
             if os.path.splitext(name)[-1] == '.tfstate':
                 yield os.path.join(dirpath, name)
-#on portal server this needs ./hosts --root . --list to work
+
 
 def iterresources(filenames):
     for filename in filenames:
