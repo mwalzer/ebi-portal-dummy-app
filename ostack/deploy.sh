@@ -69,27 +69,30 @@ echo "＼(＾O＾)／ symlink the playbooks, the inventory files"
 #for i in $PORTAL_APP_REPO_FOLDER'/kubespray-2.3.0/*'; do
 #  ln -s $i $PORTAL_DEPLOYMENTS_ROOT'/'$PORTAL_DEPLOYMENT_REFERENCE'/'${i##*/};
 #done
-# cp -r $PORTAL_APP_REPO_FOLDER'/kubespray-2.3.0/roles' $PORTAL_DEPLOYMENTS_ROOT'/'$PORTAL_DEPLOYMENT_REFERENCE'/kubespray/roles'
-# cp -r $PORTAL_APP_REPO_FOLDER'/kubespray-2.3.0/scripts' $PORTAL_DEPLOYMENTS_ROOT'/'$PORTAL_DEPLOYMENT_REFERENCE'/kubespray/scripts'
-# cp -r $PORTAL_APP_REPO_FOLDER'/kubespray-2.3.0/library' $PORTAL_DEPLOYMENTS_ROOT'/'$PORTAL_DEPLOYMENT_REFERENCE'/kubespray/library'
-# cp -r $PORTAL_APP_REPO_FOLDER'/kubespray-2.3.0/contrib' $PORTAL_DEPLOYMENTS_ROOT'/'$PORTAL_DEPLOYMENT_REFERENCE'/kubespray/contrib'
-# cp -r $PORTAL_APP_REPO_FOLDER'/kubespray-2.3.0/extra_playbooks' $PORTAL_DEPLOYMENTS_ROOT'/'$PORTAL_DEPLOYMENT_REFERENCE'/kubespray/extra_playbooks'
-# cp $PORTAL_APP_REPO_FOLDER'/kubespray-2.3.0/ansible.cfg' $PORTAL_DEPLOYMENTS_ROOT'/'$PORTAL_DEPLOYMENT_REFERENCE'/'
-# cp $PORTAL_APP_REPO_FOLDER'/kubespray-2.3.0/setup.cfg' $PORTAL_DEPLOYMENTS_ROOT'/'$PORTAL_DEPLOYMENT_REFERENCE'/'
-# cp $PORTAL_APP_REPO_FOLDER'/kubespray-2.3.0/setup.py' $PORTAL_DEPLOYMENTS_ROOT'/'$PORTAL_DEPLOYMENT_REFERENCE'/'
-# cp $PORTAL_APP_REPO_FOLDER'/kubespray-2.3.0/cluster.yml' $PORTAL_DEPLOYMENTS_ROOT'/'$PORTAL_DEPLOYMENT_REFERENCE'/'
-ls -lah $PORTAL_APP_REPO_FOLDER'/kubespray-2.3.0/'
-for i in $PORTAL_APP_REPO_FOLDER'/kubespray-2.3.0/*'; do
-  if [[ -d $i ]]; then
-        ln -s $i $PORTAL_DEPLOYMENTS_ROOT'/'$PORTAL_DEPLOYMENT_REFERENCE'/kubespray/'${i##*/}
-        ls -lah $PORTAL_DEPLOYMENTS_ROOT'/'$PORTAL_DEPLOYMENT_REFERENCE'/kubespray/'${i##*/}
-  elif [[ -f $i ]]; then
-        ln -s $i $PORTAL_DEPLOYMENTS_ROOT'/'$PORTAL_DEPLOYMENT_REFERENCE'/kubespray/'${i##*/}
-        ls -lah $PORTAL_DEPLOYMENTS_ROOT'/'$PORTAL_DEPLOYMENT_REFERENCE'/kubespray/'${i##*/}
-  else
-    echo "Dunno what to do with "$i
-  fi
-done
+ln -s $PORTAL_APP_REPO_FOLDER'/kubespray-2.3.0/roles' $PORTAL_DEPLOYMENTS_ROOT'/'$PORTAL_DEPLOYMENT_REFERENCE'/kubespray/roles'
+ln -s $PORTAL_APP_REPO_FOLDER'/kubespray-2.3.0/scripts' $PORTAL_DEPLOYMENTS_ROOT'/'$PORTAL_DEPLOYMENT_REFERENCE'/kubespray/scripts'
+ln -s $PORTAL_APP_REPO_FOLDER'/kubespray-2.3.0/library' $PORTAL_DEPLOYMENTS_ROOT'/'$PORTAL_DEPLOYMENT_REFERENCE'/kubespray/library'
+ln -s $PORTAL_APP_REPO_FOLDER'/kubespray-2.3.0/contrib' $PORTAL_DEPLOYMENTS_ROOT'/'$PORTAL_DEPLOYMENT_REFERENCE'/kubespray/contrib'
+ln -s $PORTAL_APP_REPO_FOLDER'/kubespray-2.3.0/tests' $PORTAL_DEPLOYMENTS_ROOT'/'$PORTAL_DEPLOYMENT_REFERENCE'/kubespray/tests'
+ln -s $PORTAL_APP_REPO_FOLDER'/kubespray-2.3.0/inventory' $PORTAL_DEPLOYMENTS_ROOT'/'$PORTAL_DEPLOYMENT_REFERENCE'/kubespray/inventory'
+ln -s $PORTAL_APP_REPO_FOLDER'/kubespray-2.3.0/extra_playbooks' $PORTAL_DEPLOYMENTS_ROOT'/'$PORTAL_DEPLOYMENT_REFERENCE'/kubespray/extra_playbooks'
+ln -s $PORTAL_APP_REPO_FOLDER'/kubespray-2.3.0/ansible.cfg' $PORTAL_DEPLOYMENTS_ROOT'/'$PORTAL_DEPLOYMENT_REFERENCE'/kubespray/ansible.cfg'
+ln -s $PORTAL_APP_REPO_FOLDER'/kubespray-2.3.0/setup.cfg' $PORTAL_DEPLOYMENTS_ROOT'/'$PORTAL_DEPLOYMENT_REFERENCE'/kubespray/setup.cfg'
+ln -s $PORTAL_APP_REPO_FOLDER'/kubespray-2.3.0/setup.py' $PORTAL_DEPLOYMENTS_ROOT'/'$PORTAL_DEPLOYMENT_REFERENCE'/kubespray/setup.py'
+ln -s $PORTAL_APP_REPO_FOLDER'/kubespray-2.3.0/cluster.yml' $PORTAL_DEPLOYMENTS_ROOT'/'$PORTAL_DEPLOYMENT_REFERENCE'/kubespray/cluster.yml'
+ln -s $PORTAL_APP_REPO_FOLDER'/kubespray-2.3.0/Vagrantfile' $PORTAL_DEPLOYMENTS_ROOT'/'$PORTAL_DEPLOYMENT_REFERENCE'/kubespray/Vagrantfile'
+# ls -lah $PORTAL_APP_REPO_FOLDER'/kubespray-2.3.0/'
+# for i in ls $PORTAL_APP_REPO_FOLDER'/kubespray-2.3.0/*'; do
+#   if [[ -d $i ]]; then
+#         ln -s $i $PORTAL_DEPLOYMENTS_ROOT'/'$PORTAL_DEPLOYMENT_REFERENCE'/kubespray/'${i##*/}
+#         ls -lah $PORTAL_DEPLOYMENTS_ROOT'/'$PORTAL_DEPLOYMENT_REFERENCE'/kubespray/'${i##*/}
+#   elif [[ -f $i ]]; then
+#         ln -s $i $PORTAL_DEPLOYMENTS_ROOT'/'$PORTAL_DEPLOYMENT_REFERENCE'/kubespray/'${i##*/}
+#         ls -lah $PORTAL_DEPLOYMENTS_ROOT'/'$PORTAL_DEPLOYMENT_REFERENCE'/kubespray/'${i##*/}
+#   else
+#     echo "Dunno what to do with "$i
+#   fi
+# done
 ls -lah $PORTAL_DEPLOYMENTS_ROOT'/'$PORTAL_DEPLOYMENT_REFERENCE'/kubespray/'
 
 
