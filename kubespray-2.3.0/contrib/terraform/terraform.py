@@ -16,10 +16,7 @@
 #
 # original: https://github.com/CiscoCloud/terraform.py
 
-"""\
-Dynamic inventory for Terraform - finds all `.tfstate` files below the working
-directory and generates an inventory based on them.
-"""
+#Dynamic inventory for Terraform - finds all `.tfstate` files below the working directory and generates an inventory based on them.
 from __future__ import unicode_literals, print_function
 import argparse
 from collections import defaultdict
