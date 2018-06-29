@@ -105,6 +105,7 @@ ls -lah $PORTAL_DEPLOYMENTS_ROOT'/'$PORTAL_DEPLOYMENT_REFERENCE'/kubespray/'
 #solution? cd to deployment folder and correct ansible paths into kubespray yaml files
 
 echo "ansible-playbook --version"
+ansible-playbook --version
 
 echo "＼(＾O＾)／ Giving cloudinit some more time (and avoid ssh unavailability)"
 sleep 10
