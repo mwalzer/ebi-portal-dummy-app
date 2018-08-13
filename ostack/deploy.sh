@@ -53,7 +53,7 @@ echo "＼(＾O＾)／ Prepare the deployment substructure and link infrastructur
 cd $PORTAL_DEPLOYMENTS_ROOT'/'$PORTAL_DEPLOYMENT_REFERENCE
 mkdir 'deployment'
 cp -Lr $PORTAL_APP_REPO_FOLDER'/kubespray' '.'
-cp -Lr $PORTAL_APP_REPO_FOLDER'/extra_playbooks' '.'
+cp -Lr $PORTAL_APP_REPO_FOLDER'/extra-playbooks' '.'
 
 echo "＼(＾O＾)／ Applying terraform"
 cd $PORTAL_DEPLOYMENTS_ROOT'/'$PORTAL_DEPLOYMENT_REFERENCE'/kubespray'
