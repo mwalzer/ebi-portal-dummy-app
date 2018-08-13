@@ -59,6 +59,7 @@ echo "＼(＾O＾)／ Applying terraform"
 cd $PORTAL_DEPLOYMENTS_ROOT'/'$PORTAL_DEPLOYMENT_REFERENCE'/kubespray'
 export KARGO_TERRAFORM_FOLDER=$PORTAL_DEPLOYMENTS_ROOT'/'$PORTAL_DEPLOYMENT_REFERENCE'/kubespray/contrib/terraform/openstack'
 terraform apply --state=$PORTAL_DEPLOYMENTS_ROOT'/'$PORTAL_DEPLOYMENT_REFERENCE'/deployment/terraform.tfstate' $KARGO_TERRAFORM_FOLDER
+export DYNAMICINVENTORY=$PORTAL_DEPLOYMENTS_ROOT'/'$PORTAL_DEPLOYMENT_REFERENCE'/deployment'
 
 #all dangling symlinks fixed?
 echo "＼(＾O＾)／ Fixing the inventory"
