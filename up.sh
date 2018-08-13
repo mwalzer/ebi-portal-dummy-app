@@ -1,8 +1,8 @@
 # set environment variables used by scripts in cloud-deploy/
 export PUBLIC_KEY="/home/walzer/.ssh/id_rsa.pub"
 export PRIVATE_KEY="/home/walzer/.ssh/id_rsa"
-export PORTAL_DEPLOYMENTS_ROOT="$PWD/deployments"
-export PORTAL_APP_REPO_FOLDER="$PWD"
+export PORTAL_DEPLOYMENTS_ROOT="$HOME/deployments"
+export PORTAL_APP_REPO_FOLDER="$HOME/app"
 export PORTAL_DEPLOYMENT_REFERENCE="deployment-ref-ubuntu"
 
 deployment_dir="$PORTAL_DEPLOYMENTS_ROOT/$PORTAL_DEPLOYMENT_REFERENCE"
@@ -10,6 +10,7 @@ if [[ ! -d "$deployment_dir" ]]; then
     mkdir -p "$deployment_dir"
 fi
 printf 'Using deployment directory "%s"\n' "$deployment_dir"
+printf 'Taking from repository directory "%s"\n' "$PORTAL_APP_REPO_FOLDER"
 
 export TF_VAR_kube_api_pwd="kubeapipw"
 export TF_VAR_cluster_name="kubespraytest"
@@ -54,4 +55,4 @@ fi
 # this will stack the same rule in the .tf file which is benign but ugly
 
 #1st customisation external_ip (in manifest and deploy.sh)
-ostack/deploy.sh
+#ostack/deploy.sh

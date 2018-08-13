@@ -1,1 +1,0 @@
-../gcp/terraform/README.md
