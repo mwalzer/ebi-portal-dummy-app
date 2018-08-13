@@ -41,7 +41,6 @@
     - efk_enabled
     - helm_enabled
     - openstack_lbaas_enabled
-    - rbac_enabled
   ignore_errors: "{{ ignore_assert_errors }}"
 
 - name: Stop if even number of etcd hosts
