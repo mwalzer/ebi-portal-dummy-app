@@ -5,26 +5,8 @@ set -euoE pipefail
 export TF_VAR_public_key_path=$PUBLIC_KEY
 echo "export TF_VAR_public_key_path=${TF_VAR_public_key_path}"
 
-export TF_VAR_key_path="${KEY_PATH}"
-echo "export TF_VAR_key_path=${TF_VAR_key_path}"
-
-export TF_VAR_deployment_path="${PORTAL_DEPLOYMENTS_ROOT}/${PORTAL_DEPLOYMENT_REFERENCE}/deployment"
-echo "export TF_VAR_deployment_path=${TF_VAR_deployment_path}"
-
 export TF_VAR_name="$(awk -v var="${PORTAL_DEPLOYMENT_REFERENCE}" 'BEGIN {print tolower(var)}')"
 echo "export TF_VAR_name=${TF_VAR_name}"
-
-export TF_STATE=${DPL}'terraform.tfstate'
-echo "export TF_STATE=${TF_STATE}"
-
-export DPL="${PORTAL_DEPLOYMENTS_ROOT}/${PORTAL_DEPLOYMENT_REFERENCE}/"
-echo "export DPL=${DPL}"
-
-export PRIV_KEY_PATH="${DPL}${PORTAL_DEPLOYMENT_REFERENCE}"
-echo "export PRIV_KEY_PATH=${PRIV_KEY_PATH}"
-
-export KEY_PATH="${DPL}${PORTAL_DEPLOYMENT_REFERENCE}.pub"
-echo "export KEY_PATH=${KEY_PATH}"
 
 if [ -n ${K8S_MASTER_GX_PORT+x} ]; then echo "GX port var set"; fi
 
@@ -36,14 +18,6 @@ echo "＼(＾O＾)／ Setting up Terraform creds" && \
   export TF_VAR_password=${OS_PASSWORD} && \
   export TF_VAR_tenant=${OS_TENANT_NAME} && \
   export TF_VAR_auth_url=${OS_AUTH_URL}
-
-# make sure image is available in openstack
-#ansible-playbook "$PORTAL_APP_REPO_FOLDER/playbooks/import-openstack-image.yml" \
-#	-e img_version="current" \
-#        -e img_prefix="Ubuntu-16.04" \
-#	-e url_prefix="http://cloud-images.ubuntu.com/xenial/" \
-#	-e url_suffix="xenial-server-cloudimg-amd64-disk1.img" \
-#	-e compress_suffix=""
 
 echo "＼(＾O＾)／ Prepare the deployment substructure and link infrastructure"
 cd $PORTAL_DEPLOYMENTS_ROOT'/'$PORTAL_DEPLOYMENT_REFERENCE
