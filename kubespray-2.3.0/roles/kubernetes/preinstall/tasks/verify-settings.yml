@@ -40,7 +40,7 @@
     - download_always_pull
 #    - efk_enabled
 #    - helm_enabled
-    - openstack_lbaas_enabled
+#    - openstack_lbaas_enabled
 #    - rbac_enabled
   ignore_errors: "{{ ignore_assert_errors }}"
 
