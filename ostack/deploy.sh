@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-set -euo pipefail
+set -euoE pipefail
 
 # keys exists at $PUBLIC_KEY, $PRIVATE_KEY and profile key at $ssh_key
 export TF_VAR_public_key_path=$PUBLIC_KEY
@@ -44,7 +44,6 @@ echo "＼(＾O＾)／ Setting up Terraform creds" && \
 #	-e url_prefix="http://cloud-images.ubuntu.com/xenial/" \
 #	-e url_suffix="xenial-server-cloudimg-amd64-disk1.img" \
 #	-e compress_suffix=""
-
 
 echo "＼(＾O＾)／ Prepare the deployment substructure and link infrastructure"
 cd $PORTAL_DEPLOYMENTS_ROOT'/'$PORTAL_DEPLOYMENT_REFERENCE
