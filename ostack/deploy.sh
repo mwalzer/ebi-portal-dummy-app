@@ -106,7 +106,7 @@ until [ ${retry} -ge ${maxRetries} ]
 do
   ansible-playbook -b --become-user=root \
     -i $PORTAL_DEPLOYMENTS_ROOT'/'$PORTAL_DEPLOYMENT_REFERENCE'/deployment/terraform.py' \
-  	$PORTAL_DEPLOYMENTS_ROOT'/'$PORTAL_DEPLOYMENT_REFERENCE'/extra_playbooks/rbac/rbac.yml' \
+  	$PORTAL_DEPLOYMENTS_ROOT'/'$PORTAL_DEPLOYMENT_REFERENCE'/extra-playbooks/rbac/rbac.yml' \
   	--key-file "$PRIVATE_KEY" && break
 	retry=$[${retry}+1]
 	echo "Retrying [${retry}/${maxRetries}] in ${retryInterval}(s) "
@@ -122,7 +122,7 @@ until [ ${retry} -ge ${maxRetries} ]
 do
   ansible-playbook -b --become-user=root \
     -i $PORTAL_DEPLOYMENTS_ROOT'/'$PORTAL_DEPLOYMENT_REFERENCE'/deployment/terraform.py' \
-  	$PORTAL_DEPLOYMENTS_ROOT'/'$PORTAL_DEPLOYMENT_REFERENCE'/extra_playbooks/k8s-galaxy/k8s-galaxy.yml' \
+  	$PORTAL_DEPLOYMENTS_ROOT'/'$PORTAL_DEPLOYMENT_REFERENCE'/extra-playbooks/k8s-galaxy/k8s-galaxy.yml' \
   	--key-file "$PRIVATE_KEY" && break
 	retry=$[${retry}+1]
 	echo "Retrying [${retry}/${maxRetries}] in ${retryInterval}(s) "
@@ -139,7 +139,7 @@ fi
 until [ ${retry} -ge ${maxRetries} ]
 do
   ansible-playbook -b --become-user=root -i $PORTAL_DEPLOYMENTS_ROOT'/'$PORTAL_DEPLOYMENT_REFERENCE'/deployment/terraform.py' \
-  	$PORTAL_DEPLOYMENTS_ROOT'/'$PORTAL_DEPLOYMENT_REFERENCE'/extra_playbooks/get-results/get-results.yml' \
+  	$PORTAL_DEPLOYMENTS_ROOT'/'$PORTAL_DEPLOYMENT_REFERENCE'/extra-playbooks/get-results/get-results.yml' \
   	--key-file "$PRIVATE_KEY" \
 
     --extra-vars "helm_test_param=789" && break
