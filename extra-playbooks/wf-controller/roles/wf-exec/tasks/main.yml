@@ -1,0 +1,12 @@
+---
+- name: Prepare exec pod
+  template:
+    src: "{{ role_path }}/files/exec-pod.yaml"
+    dest: "/root/exec-pod.yaml"
+    owner: root    
+
+- name: Launch workflow execution pod
+  command: kubectl create -f /root/exec-pod.yaml
+  register: executor
+  ignore_errors: false
+  

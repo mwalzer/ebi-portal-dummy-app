@@ -1,0 +1,11 @@
+---
+- name: S3 secret description
+  template:
+    src: "{{ role_path }}/files/s3secret.yaml"
+    dest: "/root/.s3secret.yaml"
+    owner: root    
+
+- name: S3 secret injection
+  command: kubectl create -f /root/.s3secret.yaml
+  register: s3sec
+  ignore_errors: true

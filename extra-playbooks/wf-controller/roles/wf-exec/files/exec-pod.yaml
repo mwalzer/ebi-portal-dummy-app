@@ -1,0 +1,42 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: wf-exec-pod
+spec:
+  initContainers:
+    - name: workflow-provisioner
+      image: mwalzer/alpine-svn
+      imagePullPolicy: IfNotPresent
+      command: ["/bin/sh"]
+      args: ["-c", "mkdir -p /workdir/exec && svn export --force https://github.com/mwalzer/portal-dummy/trunk/extra-playbooks/k8s-galaxy/roles/wf-exec/files /workdir/exec" ]
+      volumeMounts:
+        - mountPath: "/workdir"
+          name: galaxy-pvc
+  containers:
+    - name: python-workflow-executor
+      image: mwalzer/python:3.7.0-alpine3.8
+      command: ["/bin/sh"]
+      args: ["-c", "python /opt/galaxy_data/dummy.py --ip {{  hostvars[groups['kube-master'][0]]['ansible_default_ipv4']['address']  }} --workflow /opt/galaxy_data/exec/Galaxy-Workflow-FileInfo.ga" ]
+      volumeMounts: 
+          - name: pvc-galaxy
+            mountPath: /opt/galaxy_data 
+      env: 
+          - name: SECRET_USERNAME
+            valueFrom:
+              secretKeyRef: 
+                name: s3-secret
+                key: username
+          - name: SECRET_PASSWORD
+            valueFrom:
+              secretKeyRef: 
+                name: s3-secret
+                key: password
+          - name: SECRET_BUCKET
+            valueFrom:
+              secretKeyRef: 
+                name: s3-secret
+                key: bucket
+  volumes: 
+    - name: pvc-galaxy
+      persistentVolumeClaim: 
+        claimName: galaxy-pvc

@@ -1,4 +1,6 @@
 ---
 - hosts: kube-master[0]
   roles:
-    - get-results-role
+    - s3-secrets
+    - wf-exec
+
