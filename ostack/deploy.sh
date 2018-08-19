@@ -21,7 +21,7 @@ echo "＼(＾O＾)／ Setting up Terraform creds" && \
 
 echo "＼(＾O＾)／ Prepare the deployment substructure and link infrastructure"
 cd $PORTAL_DEPLOYMENTS_ROOT'/'$PORTAL_DEPLOYMENT_REFERENCE
-mkdir 'deployment'
+mkdir -p 'deployment'
 cp -Lr $PORTAL_APP_REPO_FOLDER'/kubespray' '.'
 cp -Lr $PORTAL_APP_REPO_FOLDER'/extra-playbooks' '.'
 
@@ -138,11 +138,10 @@ fi
 # wait for write_to_/opt/galaxy_data/test.txt and write to local file
 until [ ${retry} -ge ${maxRetries} ]
 do
-  ansible-playbook -b --become-user=root -i $PORTAL_DEPLOYMENTS_ROOT'/'$PORTAL_DEPLOYMENT_REFERENCE'/deployment/terraform.py' \
-  	$PORTAL_DEPLOYMENTS_ROOT'/'$PORTAL_DEPLOYMENT_REFERENCE'/extra-playbooks/get-results/get-results.yml' \
-  	--key-file "$PRIVATE_KEY" \
-
-    --extra-vars "helm_test_param=789" && break
+  ansible-playbook -b --become-user=root \
+	-i $PORTAL_DEPLOYMENTS_ROOT'/'$PORTAL_DEPLOYMENT_REFERENCE'/deployment/terraform.py' \
+  	$PORTAL_DEPLOYMENTS_ROOT'/'$PORTAL_DEPLOYMENT_REFERENCE'/extra-playbooks/wf-controller/wf-controller.yml' \
+  	--key-file "$PRIVATE_KEY" && break
 	#something like --extra-vars "helm_test_param=helm_test_param_in"
   retry=$[${retry}+1]
 	echo "Retrying [${retry}/${maxRetries}] in ${retryInterval}(s) "

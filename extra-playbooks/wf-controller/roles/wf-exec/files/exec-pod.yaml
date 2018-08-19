@@ -8,15 +8,16 @@ spec:
       image: mwalzer/alpine-svn
       imagePullPolicy: IfNotPresent
       command: ["/bin/sh"]
-      args: ["-c", "mkdir -p /workdir/exec && svn export --force https://github.com/mwalzer/portal-dummy/trunk/extra-playbooks/k8s-galaxy/roles/wf-exec/files /workdir/exec" ]
+      args: ["-c", "mkdir -p /workdir/exec && svn export --force https://github.com/mwalzer/portal-dummy/trunk/extra-playbooks/wf-controller/roles/wf-exec/files /workdir/exec" ]
       volumeMounts:
         - mountPath: "/workdir"
-          name: galaxy-pvc
+          name: pvc-galaxy
   containers:
     - name: python-workflow-executor
       image: mwalzer/python:3.7.0-alpine3.8
       command: ["/bin/sh"]
-      args: ["-c", "python /opt/galaxy_data/dummy.py --ip {{  hostvars[groups['kube-master'][0]]['ansible_default_ipv4']['address']  }} --workflow /opt/galaxy_data/exec/Galaxy-Workflow-FileInfo.ga" ]
+      args: ["-c", "python /opt/galaxy_data/exec/dummy.py --ip {{  hostvars[groups['kube-master'][0]]['public_ipv4']  }} --workflow /opt/galaxy_data/exec/Galaxy-Workflow-FileInfo.ga" ]
+      #this will need to be changed to variable port for multiple deployments on the floating ip too 
       volumeMounts: 
           - name: pvc-galaxy
             mountPath: /opt/galaxy_data 

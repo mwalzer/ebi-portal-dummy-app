@@ -1,0 +1,12 @@
+---
+- hosts: kube-master
+  remote_user: root
+  tasks:
+  - name: debug out host IP s
+    debug:
+      msg: "System {{ inventory_hostname }} has uuid {{ ansible_product_uuid }}"
+    debug:
+      msg: "System Internal IP {{ hostvars[groups['kube-master'][0]]['ansible_default_ipv4']['address'] }}"
+    debug:
+      msg: "System Internal IP {{ hostvars[groups['kube-master'][0]]['public_ipv4'] }}"
+
