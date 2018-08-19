@@ -16,7 +16,7 @@ spec:
     - name: python-workflow-executor
       image: mwalzer/python:3.7.0-alpine3.8
       command: ["/bin/sh"]
-      args: ["-c", "python /opt/galaxy_data/exec/dummy.py --ip {{  hostvars[groups['kube-master'][0]]['public_ipv4']  }} --workflow /opt/galaxy_data/exec/Galaxy-Workflow-FileInfo.ga" ]
+      args: ["-c", "pip install bioblend boto3 && python /opt/galaxy_data/exec/dummy.py --ip {{  hostvars[groups['kube-master'][0]]['public_ipv4']  }} --workflow /opt/galaxy_data/exec/Galaxy-Workflow-FileInfo.ga" ]
       #this will need to be changed to variable port for multiple deployments on the floating ip too 
       volumeMounts: 
           - name: pvc-galaxy

@@ -13,7 +13,7 @@ VERSION = "0.1"
 
 
 def check_galaxy(url):
-    request = requests.get(galaxy_url)
+    request = requests.get(url)
     if request.status_code == 200:
         return 1
     else:
