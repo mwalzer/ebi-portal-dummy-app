@@ -75,10 +75,10 @@ def __main__():
         r.append(gi.libraries.upload_file_from_url(nl['id'], furl, folder_id=None, file_type='auto', dbkey='?'))
     hi = gi.histories.create_history(name=None)
 
-    # do I need this???
-    # rh = []
-    # for li in r:
-    #     rh.append(gi.histories.upload_dataset_from_library(hi['id'], li[0]['id']))
+    # do I need this??? otherwise "err_msg": "HistoryDatasetAssociation not found" ???
+    rh = []
+    for li in r:
+        rh.append(gi.histories.upload_dataset_from_library(hi['id'], li[0]['id']))
 
     # ids from r
     foo = gi.histories.create_dataset_collection(hi['id'], {'collection_type': 'list', 'name': 'mcl',
