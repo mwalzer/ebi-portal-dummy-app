@@ -82,7 +82,7 @@ def __main__():
 
     # ids from r
     foo = gi.histories.create_dataset_collection(hi['id'], {'collection_type': 'list', 'name': 'mcl',
-                                    'element_identifiers': [{'id': e[0]['id'], 'name': e[0]['name']} for e in r]})
+                                    'element_identifiers': [{'id': e['id'], 'name': e['name']} for e in rh]})
 
     datamap = dict()
     datamap[0] = {'src': 'hdca', 'id': foo['id']}  # HistoryDatasetCollectionAssociation from foo
@@ -113,8 +113,8 @@ def __main__():
     session = boto3.session.Session()
     s3_client = session.client(
         service_name='s3',
-        aws_access_key_id = os.environ["SECRET_ID"],
-        aws_secret_access_key = os.environ["SECRET_KEY"],
+        aws_access_key_id = os.environ["SECRET_USERNAME"],
+        aws_secret_access_key = os.environ["SECRET_PASSWORD"],
         endpoint_url='https://s3.embassy.ebi.ac.uk',
     )
 
