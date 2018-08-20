@@ -55,4 +55,5 @@ fi
 # this will stack the same rule in the .tf file which is benign but ugly
 
 #1st customisation external_ip (in manifest and deploy.sh)
-#ostack/deploy.sh
+ostack/deploy.sh
+cp -r /root/deployments /root/app/deployments/ 

@@ -154,11 +154,9 @@ fi
 
 
 
-helm_test_param_out=`cat helm_test_param.txt`
-#clean up afterwards!!!
+result_url=`cat /tmp/fetched`
+#clean up afterwards?
 
 # Extract the external IP of the instance
 external_ip=$(terraform output -state=${DPL}'terraform.tfstate' external_ip)
 
-#TF move to deployment parameters in portal and remove prefix
-#see cpa instance.tf for how to define multiple types of flavours for one deployment
