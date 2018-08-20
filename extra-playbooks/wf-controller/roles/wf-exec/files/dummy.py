@@ -86,7 +86,7 @@ def __main__():
     datamap = dict()
     datamap[0] = {'src': 'hdca', 'id': foo['id']}  # HistoryDatasetCollectionAssociation from foo
 
-    op = gi.workflows.run_workflow(fi_wf['id'], datamap, history_name='New output history')
+    op = gi.workflows.run_workflow(wfi['id'], datamap, history_name='New output history')
 
     while gi.histories.show_history(op['history'])['state_details']['queued'] > 0:
         time.sleep(options.sleep)
