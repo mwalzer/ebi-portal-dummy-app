@@ -1,0 +1,28 @@
+---
+- name: Wait for result to be reported
+  command: kubectl logs -f wf-exec-pod
+  register: waiting_for_exec_report
+  until: ("Final result export -->" in waiting_for_exec_report.stdout) or ("Traceback" in  waiting_for_exec_report.stdout)
+  retries: 1000000
+  delay: 10
+
+#- debug:
+#        msg="{{ waiting_for_exec_report.stdout }}" 
+
+#- debug:
+#        msg="{{ waiting_for_exec_report.stdout | regex_search('https://s3.*$') }}"
+
+- name: Extract result url
+  set_fact:
+    result_url: "{{ waiting_for_exec_report.stdout | regex_search('https://s3.*$') }}" 
+
+- debug:
+        msg="{{ result_url }}"
+
+- name: Writing result url to file
+  copy: content="{{ result_url }}" dest=/tmp/whop
+
+- fetch:
+    src: /tmp/whop
+    dest: /tmp/fetched
+    flat: yes

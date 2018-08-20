@@ -3,4 +3,5 @@
   roles:
     - s3-secrets
     - wf-exec
+    - get-result
 
