@@ -158,5 +158,5 @@ result_url=`cat /tmp/fetched`
 #clean up afterwards?
 
 # Extract the external IP of the instance
-external_ip=$(terraform output -state=${DPL}'terraform.tfstate' external_ip)
+external_ip=$(terraform output -state=$PORTAL_DEPLOYMENTS_ROOT'/'$PORTAL_DEPLOYMENT_REFERENCE'/deployment/terraform.tfstate' external_ip)
 

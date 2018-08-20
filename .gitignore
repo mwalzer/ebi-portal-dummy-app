@@ -21,3 +21,5 @@ env.json
 
 *.log
 volumes_mapping.json
+
+myREADME.md
