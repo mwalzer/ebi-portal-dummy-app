@@ -54,44 +54,40 @@ def __main__():
     adminkey = gig.users.get_user_apikey(gig.users.get_users()[0]['id'])
     gi = galaxy.GalaxyInstance(url="http://{ip}:30700".format(ip=options.ip), key=adminkey)
 
-    gi.workflows.get_workflows()
+    #gi.workflows.get_workflows()
     wf = options.workflow
     fi = reading(wf)
-
     wfi = gi.workflows.import_workflow_dict(fi)
+    #gi.workflows.get_workflows()
+    #wfi['id']  # will need that id
 
-    fi_wf = gi.workflows.show_workflow(wfi['id'])
-
-    #fi_wf['inputs']
-
-    gi.libraries.get_libraries()
+    #gi.libraries.get_libraries()
     nl = gi.libraries.create_library("fileinfi_in", description=None, synopsis=None)
-
+    #nl['id']  # will need that id
     inputs = ["https://s3.embassy.ebi.ac.uk/misc/CPTAC_CompRef_00_iTRAQ_07_2Feb12_Cougar_11-10-09.mzML",
               "https://s3.embassy.ebi.ac.uk/misc/CPTAC_CompRef_00_iTRAQ_08_2Feb12_Cougar_11-10-11.mzML",
               "https://s3.embassy.ebi.ac.uk/misc/CPTAC_CompRef_00_iTRAQ_09_2Feb12_Cougar_11-10-09.mzML"]
     r = []
     for furl in inputs:
         r.append(gi.libraries.upload_file_from_url(nl['id'], furl, folder_id=None, file_type='auto', dbkey='?'))
-    hi = gi.histories.create_history(name=None)
 
-    # do I need this??? otherwise "err_msg": "HistoryDatasetAssociation not found" ???
+
+    hi = gi.histories.create_history(name=None)
+    #hi['id']  # will need that id
+
     rh = []
     for li in r:
         rh.append(gi.histories.upload_dataset_from_library(hi['id'], li[0]['id']))
 
-    # ids from r
+
     foo = gi.histories.create_dataset_collection(hi['id'], {'collection_type': 'list', 'name': 'mcl',
                                     'element_identifiers': [{'id': e['id'], 'name': e['name']} for e in rh]})
-
+    #foo['id']  # will need that id
     datamap = dict()
     datamap[0] = {'src': 'hdca', 'id': foo['id']}  # HistoryDatasetCollectionAssociation from foo
 
-    op = gi.workflows.run_workflow(foo['id'], datamap, history_name='New output history')
+    op = gi.workflows.run_workflow(fi_wf['id'], datamap, history_name='New output history')
 
-    # wait???
-    #gi.histories.show_history(op['history'])
-    # 'running', 'queued', ... vs 'ok'
     while gi.histories.show_history(op['history'])['state_details']['queued'] > 0:
         time.sleep(options.sleep)
 
