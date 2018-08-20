@@ -13,10 +13,13 @@ VERSION = "0.1"
 
 
 def check_galaxy(url):
-    request = requests.get(url)
-    if request.status_code == 200:
-        return 1
-    else:
+    try:
+        request = requests.get(url)
+        if request.status_code == 200:
+            return 1
+        else:
+            return None
+    except:
         return None
 
 
@@ -31,8 +34,8 @@ def __main__():
     #parser = argparse.ArgumentParser(version=VERSION)
     parser = argparse.ArgumentParser()
     parser.add_argument('-i', '--ip', dest="ip", required=True, help="The galaxy servers ip")  # galaxy server IP, e.g. IP 193.62.52.136
-    parser.add_argument('-r', '--retry', dest="max", help="max number of retries to connect to galaxy server", default=100)
-    parser.add_argument('-w', '--wait', dest="sleep", help="seconds to wait between retries to connect to galaxy server", default=100)
+    parser.add_argument('-r', '--retry', dest="max", type=int, help="max number of retries to connect to galaxy server", default=100)
+    parser.add_argument('-w', '--wait', dest="sleep", type=int, help="seconds to wait between retries to connect to galaxy server", default=100)
     parser.add_argument('-f', '--workflow', dest="workflow", required=True, help="full path to workflow")
     options = parser.parse_args()
     if len(sys.argv) <= 1:
