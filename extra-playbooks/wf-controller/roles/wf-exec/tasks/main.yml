@@ -1,4 +1,14 @@
 ---
+- debug:
+    msg: "IP {{ hostvars[groups['kube-master'][0]]['public_ipv4']  }}"
+
+- name: Wait for galaxy API port
+  wait_for:
+          host: "{{ hostvars[groups['kube-master'][0]]['public_ipv4'] }}"
+          port: 30700
+          timeout: 600
+          msg: "timeout connecting to galaxy server"
+
 - name: Prepare exec pod
   template:
     src: "{{ role_path }}/files/exec-pod.yaml"

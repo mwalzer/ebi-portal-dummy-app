@@ -37,6 +37,7 @@ spec:
               secretKeyRef: 
                 name: s3-secret
                 key: bucket
+  restartPolicy: Never
   volumes: 
     - name: pvc-galaxy
       persistentVolumeClaim: 

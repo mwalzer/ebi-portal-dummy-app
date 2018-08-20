@@ -137,7 +137,7 @@ def __main__():
             'Key': rname
         }
     )
-    return report_url
+    print("Final result export -->", report_url)
 
 
 if __name__ == '__main__':
