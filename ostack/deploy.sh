@@ -1,71 +1,67 @@
 #!/usr/bin/env bash
 set -euoE pipefail
 
-# keys exists at $PUBLIC_KEY, $PRIVATE_KEY and profile key at $ssh_key
-export TF_VAR_public_key_path=$PUBLIC_KEY
-echo "export TF_VAR_public_key_path=${TF_VAR_public_key_path}"
-
-export TF_VAR_name="$(awk -v var="${PORTAL_DEPLOYMENT_REFERENCE}" 'BEGIN {print tolower(var)}')"
-echo "export TF_VAR_name=${TF_VAR_name}"
-
-if [ -n ${K8S_MASTER_GX_PORT+x} ]; then echo "GX port var set"; fi
-
-eval $(ssh-agent -s)
-ssh-add $PRIVATE_KEY
+echo "＼(＾O＾)／ Setting up convenience OS_ENV"
+# Git cloned application folder
+export APP="${PORTAL_APP_REPO_FOLDER}"
+echo "export APP=${APP}"
+# Deployment folder
+export DPL="${PORTAL_DEPLOYMENTS_ROOT}/${PORTAL_DEPLOYMENT_REFERENCE}/"
+echo "export DPL=${DPL}"
 
 echo "＼(＾O＾)／ Setting up Terraform creds" && \
-  export TF_VAR_username=${OS_USERNAME} && \
-  export TF_VAR_password=${OS_PASSWORD} && \
-  export TF_VAR_tenant=${OS_TENANT_NAME} && \
-  export TF_VAR_auth_url=${OS_AUTH_URL}
+export TF_VAR_username=${OS_USERNAME} && \
+export TF_VAR_password=${OS_PASSWORD} && \
+export TF_VAR_tenant=${OS_TENANT_NAME} && \
+export TF_VAR_auth_url=${OS_AUTH_URL}
 
-echo "＼(＾O＾)／ Prepare the deployment substructure and link infrastructure"
-cd $PORTAL_DEPLOYMENTS_ROOT'/'$PORTAL_DEPLOYMENT_REFERENCE
-mkdir -p 'deployment'
-cp -Lr $PORTAL_APP_REPO_FOLDER'/kubespray' '.'
-cp -Lr $PORTAL_APP_REPO_FOLDER'/extra-playbooks' '.'
+### Terraform variables, can be used by terrarom without the `TF_VAR_` prefix
+export TF_VAR_deployment_path="$DPL"
+echo "export TF_VAR_deployment_path=${TF_VAR_deployment_path}"
+export TF_VAR_name="$(awk -v var="${PORTAL_DEPLOYMENT_REFERENCE}" 'BEGIN {print tolower(var)}')"
+echo "export TF_VAR_name=${TF_VAR_name}"
+export TF_VAR_key_path="${KEY_PATH}"
+echo "export TF_VAR_key_path=${TF_VAR_key_path}"
+export TF_STATE=${DPL}'/kubespray/inventory/terraform.tfstate'
+echo "export TF_STATE=${TF_STATE}"
+
+echo "＼(＾O＾)／ Copy kubespray instructions for deployment customisations"
+cp -rH $APP'/kubespray' $DPL'/kubespray'
+cp $DPL'/kubespray/contrib/terraform/terraform.py' $DPL'/kubespray/inventory/terraform.py'
+cp -rH $APP'/extra-playbooks' $DPL'/extra-playbooks'
 
 echo "＼(＾O＾)／ Applying terraform"
-cd $PORTAL_DEPLOYMENTS_ROOT'/'$PORTAL_DEPLOYMENT_REFERENCE'/kubespray'
-export KARGO_TERRAFORM_FOLDER=$PORTAL_DEPLOYMENTS_ROOT'/'$PORTAL_DEPLOYMENT_REFERENCE'/kubespray/contrib/terraform/openstack'
-terraform apply --state=$PORTAL_DEPLOYMENTS_ROOT'/'$PORTAL_DEPLOYMENT_REFERENCE'/deployment/terraform.tfstate' $KARGO_TERRAFORM_FOLDER
-export DYNAMICINVENTORY=$PORTAL_DEPLOYMENTS_ROOT'/'$PORTAL_DEPLOYMENT_REFERENCE'/deployment'
+cd $DPL'/kubespray'
+export KUBESPRAY_TF=$DPL'/kubespray/contrib/terraform/openstack'
+terraform apply --state=$TF_STATE $KUBESPRAY_TF
 
-#all dangling symlinks fixed?
-echo "＼(＾O＾)／ Fixing the inventory"
-cd $PORTAL_DEPLOYMENTS_ROOT'/'$PORTAL_DEPLOYMENT_REFERENCE'/kubespray'
-cp 'contrib/terraform/terraform.py' $PORTAL_DEPLOYMENTS_ROOT'/'$PORTAL_DEPLOYMENT_REFERENCE'/deployment/terraform.py'
-cp -r 'contrib/terraform/openstack/group_vars' $PORTAL_DEPLOYMENTS_ROOT'/'$PORTAL_DEPLOYMENT_REFERENCE'/deployment'
-cp -r 'contrib/terraform/openstack/group_vars' 'contrib/network-storage/glusterfs'
-cp -r 'contrib/terraform/openstack/group_vars' 'extra_playbooks'
-cp -r 'contrib/terraform/openstack/group_vars' 'inventory'
-
-echo "dyn inventory from terraform:"
-ls -lahR $PORTAL_DEPLOYMENTS_ROOT'/'$PORTAL_DEPLOYMENT_REFERENCE'/deployment'
-cd $PORTAL_DEPLOYMENTS_ROOT'/'$PORTAL_DEPLOYMENT_REFERENCE'/deployment/'
-python terraform.py --list --root .
-
-echo "ansible-playbook --version"
-ansible-playbook --version
-#  Ansible v2.4 (or newer) and python-netaddr is installed on the machine that will run Ansible commands
-#  Jinja 2.9 (or newer) is required to run the Ansible Playbooks
+#echo "dyn inventory from terraform:"
+#ls -lahR $PORTAL_DEPLOYMENTS_ROOT'/'$PORTAL_DEPLOYMENT_REFERENCE'/deployment'
+#cd $PORTAL_DEPLOYMENTS_ROOT'/'$PORTAL_DEPLOYMENT_REFERENCE'/deployment/'
+#python terraform.py --list --root .
 
 echo "＼(＾O＾)／ Giving cloudinit some more time (and avoid ssh unavailability)"
-sleep 10
+sleep 12
+
+#Seems the agent is critical for forwarding the PRIV_KEY_PATH to the endpoint host
+#eval $(ssh-agent -s)
+#ssh-add $PRIV_KEY_PATH
 
 maxRetries=3
 retryInterval=10
 
 echo "＼(＾O＾)／ Applying ansible playbooks"
-cd $PORTAL_DEPLOYMENTS_ROOT'/'$PORTAL_DEPLOYMENT_REFERENCE'/kubespray'
+cd $DPL'/kubespray'
 echo "cwd=$PWD"
 
+#THIS playbook wants to write in the playbooks folder
 # Provision kubespray
 retry=0
 until [ ${retry} -ge ${maxRetries} ]
 do
-  ansible-playbook --flush-cache -b --become-user=root -i $PORTAL_DEPLOYMENTS_ROOT'/'$PORTAL_DEPLOYMENT_REFERENCE'/deployment/terraform.py' cluster.yml \
-  	--key-file "$PRIVATE_KEY" \
+  ansible-playbook --flush-cache -b --become-user=root -i $DPL'/kubespray/inventory/terraform.py' \
+    $DPL'/kubespray/cluster.yml' \
+  	--key-file "$PRIV_KEY_PATH" \
   	-e bootstrap_os=ubuntu \
   	-e host_key_checking=false \
   	-e cloud_provider="openstack" \
@@ -88,8 +84,10 @@ fi
 # Provision glusterfs
 until [ ${retry} -ge ${maxRetries} ]
 do
-  ansible-playbook -b --become-user=root -i $PORTAL_DEPLOYMENTS_ROOT'/'$PORTAL_DEPLOYMENT_REFERENCE'/deployment/terraform.py' contrib/network-storage/glusterfs/glusterfs.yml \
-  	--key-file "$PRIVATE_KEY" \
+  ansible-playbook -b --become-user=root \
+    -i $DPL'/kubespray/inventory/terraform.py' \
+    $DPL'/kubespray/contrib/network-storage/glusterfs/glusterfs.yml' \
+  	--key-file "$PRIV_KEY_PATH" \
   	-e host_key_checking=false \
   	-e bootstrap_os=ubuntu && break
 	retry=$[${retry}+1]
@@ -105,9 +103,9 @@ fi
 until [ ${retry} -ge ${maxRetries} ]
 do
   ansible-playbook -b --become-user=root \
-    -i $PORTAL_DEPLOYMENTS_ROOT'/'$PORTAL_DEPLOYMENT_REFERENCE'/deployment/terraform.py' \
-  	$PORTAL_DEPLOYMENTS_ROOT'/'$PORTAL_DEPLOYMENT_REFERENCE'/extra-playbooks/rbac/rbac.yml' \
-  	--key-file "$PRIVATE_KEY" && break
+    -i $DPL'/kubespray/inventory/terraform.py' \
+  	$DPL'/extra-playbooks/rbac/rbac.yml' \
+  	--key-file "$PRIV_KEY_PATH" && break
 	retry=$[${retry}+1]
 	echo "Retrying [${retry}/${maxRetries}] in ${retryInterval}(s) "
 	sleep ${retryInterval}
@@ -121,9 +119,9 @@ fi
 until [ ${retry} -ge ${maxRetries} ]
 do
   ansible-playbook -b --become-user=root \
-    -i $PORTAL_DEPLOYMENTS_ROOT'/'$PORTAL_DEPLOYMENT_REFERENCE'/deployment/terraform.py' \
-  	$PORTAL_DEPLOYMENTS_ROOT'/'$PORTAL_DEPLOYMENT_REFERENCE'/extra-playbooks/k8s-galaxy/k8s-galaxy.yml' \
-  	--key-file "$PRIVATE_KEY" && break
+    -i $DPL'/kubespray/inventory/terraform.py' \
+  	$DPL'/extra-playbooks/k8s-galaxy/k8s-galaxy.yml' \
+  	--key-file "$PRIV_KEY_PATH" && break
 	retry=$[${retry}+1]
 	echo "Retrying [${retry}/${maxRetries}] in ${retryInterval}(s) "
 	sleep ${retryInterval}
@@ -134,14 +132,14 @@ if [ ${retry} -ge ${maxRetries} ]; then
   exit 1
 fi
 
-
+#THIS playbook wants to write in the playbooks folder
 # wait for write_to_/opt/galaxy_data/test.txt and write to local file
 until [ ${retry} -ge ${maxRetries} ]
 do
   ansible-playbook -b --become-user=root \
-	-i $PORTAL_DEPLOYMENTS_ROOT'/'$PORTAL_DEPLOYMENT_REFERENCE'/deployment/terraform.py' \
-  	$PORTAL_DEPLOYMENTS_ROOT'/'$PORTAL_DEPLOYMENT_REFERENCE'/extra-playbooks/wf-controller/wf-controller.yml' \
-  	--key-file "$PRIVATE_KEY" && break
+    -i $DPL'/kubespray/inventory/terraform.py' \
+  	$DPL'/extra-playbooks/wf-controller/wf-controller.yml' \
+  	--key-file "$PRIV_KEY_PATH" && break
 	#something like --extra-vars "helm_test_param=helm_test_param_in"
   retry=$[${retry}+1]
 	echo "Retrying [${retry}/${maxRetries}] in ${retryInterval}(s) "
@@ -152,11 +150,12 @@ if [ ${retry} -ge ${maxRetries} ]; then
   exit 1
 fi
 
-
-
-result_url=`cat /tmp/fetched`
 #clean up afterwards?
+destroy.sh
+rm -rf $DPL'/kubespray'
 
+#Export results
+# Extract the S3 url for user download
+result_url=`cat /tmp/fetched`
 # Extract the external IP of the instance
-external_ip=$(terraform output -state=$PORTAL_DEPLOYMENTS_ROOT'/'$PORTAL_DEPLOYMENT_REFERENCE'/deployment/terraform.tfstate' external_ip)
-
+external_ip=$(terraform output -state=$TF_STATE external_ip)

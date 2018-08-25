@@ -1,1 +1,1 @@
-ansible_ssh_common_args: '-o ProxyCommand="ssh -o StrictHostKeyChecking=no -W %h:%p -q USER@BASTION_ADDRESS"' 
+ansible_ssh_common_args: '-o StrictHostKeyChecking=no -o ProxyCommand="ssh -i \"$PRIV_KEY_PATH\" -o StrictHostKeyChecking=no -W %h:%p -q USER@BASTION_ADDRESS"' 

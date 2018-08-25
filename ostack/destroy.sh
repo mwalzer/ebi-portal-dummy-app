@@ -1,11 +1,21 @@
 #!/usr/bin/env bash
 set -e
 
-export TF_VAR_deployment_path="${PORTAL_DEPLOYMENTS_ROOT}/${PORTAL_DEPLOYMENT_REFERENCE}/deployment"
-echo "export TF_VAR_deployment_path=${TF_VAR_deployment_path}"
+echo "\(^O^)/ Setting up convenience OS_ENV"
+# Git cloned application folder
+export APP="${PORTAL_APP_REPO_FOLDER}"
+echo "export APP=${APP}"
+# Deployment folder
+export DPL="${PORTAL_DEPLOYMENTS_ROOT}/${PORTAL_DEPLOYMENT_REFERENCE}/"
+echo "export DPL=${DPL}"
 
+echo "\(^O^)/ Will destroy the following"
 # Export input variable in the bash environment
 export TF_VAR_name="$(awk -v var="$PORTAL_DEPLOYMENT_REFERENCE" 'BEGIN {print tolower(var)}')"
+echo $TF_VAR_name
 
+export TF_STATE=${DPL}'terraform.tfstate'
+
+echo "\(^O^)/ ICH MUSS ZERSTÖREN ...!"
 # Destroys a virtual machine instance
-terraform destroy --force --input=false --state=$PORTAL_DEPLOYMENTS_ROOT'/'$PORTAL_DEPLOYMENT_REFERENCE'/deployment/terraform.tfstate'
+terraform destroy --force --input=false --state=$TF_STATE
