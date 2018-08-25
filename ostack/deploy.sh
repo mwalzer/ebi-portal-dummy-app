@@ -8,6 +8,8 @@ echo "export APP=${APP}"
 # Deployment folder
 export DPL="${PORTAL_DEPLOYMENTS_ROOT}/${PORTAL_DEPLOYMENT_REFERENCE}/"
 echo "export DPL=${DPL}"
+export KEY_PATH=$PUBLIC_KEY
+export PRIV_KEY_PATH=$PRIVATE_KEY
 
 echo "＼(＾O＾)／ Setting up Terraform creds" && \
 export TF_VAR_username=${OS_USERNAME} && \
@@ -151,8 +153,8 @@ if [ ${retry} -ge ${maxRetries} ]; then
 fi
 
 #clean up afterwards?
-destroy.sh
-rm -rf $DPL'/kubespray'
+#destroy.sh
+#rm -rf $DPL'/kubespray'
 
 #Export results
 # Extract the S3 url for user download
