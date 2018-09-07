@@ -54,10 +54,10 @@ terraform apply --state=$TF_STATE $KUBESPRAY_TF
 echo "＼(＾O＾)／ Giving cloudinit some more time (and avoid ssh unavailability)"
 sleep 30
 
-#pkill -f 'ssh-agent -s'
+pkill -f 'ssh-agent -s'
 #Seems the agent is critical for forwarding the PRIV_KEY_PATH to the endpoint host
-#eval $(ssh-agent -s)
-#ssh-add $PRIV_KEY_PATH
+eval $(ssh-agent -s)
+ssh-add $PRIV_KEY_PATH
 
 maxRetries=3
 retryInterval=60
