@@ -32,6 +32,15 @@ cp -rH $APP'/kubespray' $DPL'/kubespray'
 cp $DPL'/kubespray/contrib/terraform/terraform.py' $DPL'/kubespray/inventory/terraform.py'
 cp -rH $APP'/extra-playbooks' $DPL'/extra-playbooks'
 
+
+echo "＼(＾O＾)／ Last changes in terraform config for galaxy port"
+# Galaxy settings
+export K8S_MASTER_GX_PORT="30700"
+if [ ! -z ${K8S_MASTER_GX_PORT+x} ]; then
+	#echo $K8S_MASTER_GX_PORT;
+	sed -i 's,description = "${var.cluster_name} - Kubernetes Master"','description = "${var.cluster_name} - Kubernetes Master"\n\trule {\n\t\tip_protocol = "tcp"\n\t\tfrom_port = "'$K8S_MASTER_GX_PORT'"\n\t\tto_port = "'$K8S_MASTER_GX_PORT'"\n\t\tcidr = "0.0.0.0/0"\n\t},'  $DPL'/kubespray/contrib/terraform/openstack/kubespray.tf'
+fi
+
 echo "＼(＾O＾)／ Applying terraform"
 cd $DPL'/kubespray'
 export KUBESPRAY_TF=$DPL'/kubespray/contrib/terraform/openstack'
@@ -102,7 +111,6 @@ if [ ${retry} -ge ${maxRetries} ]; then
   exit 1
 fi
 
-# Set permissive access control and add '30700 open' security group
 until [ ${retry} -ge ${maxRetries} ]
 do
   ansible-playbook -b --become-user=root \
@@ -160,5 +168,17 @@ fi
 #Export results
 # Extract the S3 url for user download
 result_url=`cat /tmp/fetched`
+
 # Extract the external IP of the instance
-external_ip=$(terraform output -state=$TF_STATE external_ip)
+external_ip=$(egrep -oh '193\.[[:digit:]]{1,3}\.[[:digit:]]{1,3}\.[[:digit:]]{1,3}' $TF_STATE | head -n1 )
+
+#WTF? How can this work with cpa-instance?
+#The state file either has no outputs defined, or all the defined
+#outputs are empty. Please define an output in your configuration
+#with the `output` keyword and run `terraform refresh` for it to
+#become available. If you are using interpolation, please verify
+#the interpolated value is not empty. You can use the 
+#`terraform console` command to assist.
+#Workaround with egrep
+#egrep -oh '\"floating_ip\"\: \"([[:digit:]]{1,3}\.[[:digit:]]{1,3}\.[[:digit:]]{1,3}\.[[:digit:]]{1,3})' /root/deployments/deployment-ref-ubuntu//kubespray/inventory/terraform.tfstate  | head -n1
+#egrep -oh '193\.[[:digit:]]{1,3}\.[[:digit:]]{1,3}\.[[:digit:]]{1,3}' /root/deployments/deployment-ref-ubuntu//kubespray/inventory/terraform.tfstate | head -n1
