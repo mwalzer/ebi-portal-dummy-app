@@ -14,8 +14,9 @@ echo "\(^O^)/ Will destroy the following"
 export TF_VAR_name="$(awk -v var="$PORTAL_DEPLOYMENT_REFERENCE" 'BEGIN {print tolower(var)}')"
 echo $TF_VAR_name
 
-export TF_STATE=${DPL}'terraform.tfstate'
+export TF_STATE=${DPL}'/kubespray/inventory/terraform.tfstate'
+echo "export TF_STATE=${TF_STATE}"
 
-echo "\(^O^)/ ICH MUSS ZERSTÖREN ...!"
+echo "\(^O^)/ ICH MUSS ZERSTOEREN ...!"
 # Destroys a virtual machine instance
 terraform destroy --force --input=false --state=$TF_STATE
