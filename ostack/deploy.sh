@@ -41,6 +41,8 @@ if [ ! -z ${K8S_MASTER_GX_PORT+x} ]; then
 	sed -i 's,description = "${var.cluster_name} - Kubernetes Master"','description = "${var.cluster_name} - Kubernetes Master"\n\trule {\n\t\tip_protocol = "tcp"\n\t\tfrom_port = "'$K8S_MASTER_GX_PORT'"\n\t\tto_port = "'$K8S_MASTER_GX_PORT'"\n\t\tcidr = "0.0.0.0/0"\n\t},'  $DPL'/kubespray/contrib/terraform/openstack/kubespray.tf'
 fi
 
+export TF_VAR_cluster_name="k8s-${PORTAL_DEPLOYMENT_REFERENCE}"
+
 echo "＼(＾O＾)／ Applying terraform"
 cd $DPL'/kubespray'
 export KUBESPRAY_TF=$DPL'/kubespray/contrib/terraform/openstack'
